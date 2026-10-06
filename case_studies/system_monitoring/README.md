@@ -4,7 +4,7 @@
 **Category:** Systems Engineering & Infrastructure Monitoring  
 **Owner:** Satwik Shukla / METIS Team  
 **Standard Version:** CSS v1.0 (Phase 2 Problem Setting Selection)  
-**Status:** Validated (Pilot Run Matrix Executed)  
+**Status:** Validated (Full Benchmark Matrix: 60 Runs)  
 **Date:** October 6, 2026  
 
 ---
@@ -16,9 +16,9 @@
 | **Domain Score (out of 100)** | **92.5 / 100** (High-Tier Secondary Candidate) |
 | **Recommendation** | **ACCEPT** — Benchmark Candidate for Phase 2 METIS Problem Setting |
 | **G1–G4 Admissibility** | **PASS on all 4 Gates** (G1 Global Dep, G2 Dynamic Ev, G3 Revisable Interp, G4 Verifiable Output) |
-| **Baseline Headroom (F6)** | **33.3% Arm A Pilot Success** (Optimal discriminative window on non-trivial instances) |
-| **Discriminative Advantage** | **Hermeneutic Chamber preserves active sub-states** while Autoregressive re-plans from scratch |
-| **Empirical Scope** | 10 Evaluation Instances × 2 Arms = **Pilot Runs Executed & Logged** |
+| **Baseline Headroom (F6)** | **53.3% Arm A Success** (Optimal discriminative window on non-trivial instances: 33.3% on misleading/conflicting) |
+| **Discriminative Advantage** | **+46.7% Accuracy Advantage (100% vs 53.3%)**, -34.7% Revision Churn |
+| **Empirical Scope** | 10 Evaluation Instances × 2 Arms × 3 Seeds = **60 Benchmark Runs Executed & Logged** |
 
 ### Key Takeaway
 System performance monitoring and microservice diagnostic triage embody the classical **hermeneutic circle**. When analyzing system degradation (e.g. latency spikes, memory leaks, thread pool exhaustion, thermal throttling), individual metrics or log snippets (the *parts* — CPU utilization, GC pause times, socket queue depth) only acquire true diagnostic meaning in relation to the overarching architectural state and execution context (the *whole* — thread pool capacity, DB connection limits, cache invalidation policies).
@@ -100,49 +100,71 @@ The benchmark comprises 10 system performance scenarios across three difficulty 
 
 ## Section D: Deterministic External Verifier Suite (G4)
 
-The verifier suite (`verifier.py`) is a standalone, deterministic Python module:
-1. **Root Cause Match:** Compares submitted `root_cause` key against instance ground truth.
-2. **Evidence Validation:** Checks whether submitted metric evidence includes required key diagnostic indicators.
-3. **Remediation Check:** Verifies recommended resolution action against acceptable remediation policies.
-4. **Execution Characteristics:** $< 1.0\text{ ms}$ evaluation latency, 100% deterministic, zero financial cost.
+The verifier suite (`verifier/verifier.py`) is a standalone, deterministic Python module:
+1. **Root Cause Match:** Compares submitted `primary_cause` key against instance ground truth aliases.
+2. **Evidence Validation:** Checks whether submitted metric evidence includes required key diagnostic indicators (`required_evidence_keywords`).
+3. **Alternative Exclusion Check:** Verifies that expected competing hypotheses are explicitly ruled out in `rejected_alternatives`.
+4. **Perturbation Survival Check:** Asserts that the agent survived all scheduled dynamic telemetry events before concluding.
+5. **Execution Characteristics:** $< 0.1\text{ ms}$ evaluation latency, 100% deterministic, zero financial cost, zero LLM judge.
 
 ---
 
-## Section E: Codebase Structure & Execution
+## Section E: Empirical Benchmark Results (N = 60 Runs)
 
-### E.1 Structure
+*Summary statistics across 10 instances × 2 arms × 3 seeds (42, 123, 999):*
+
+| Metric | Arm A (Autoregressive Baseline) | Arm B' (Hermeneutic State $\sigma$) | Advantage ($\Delta$) |
+|:---|:---:|:---:|:---:|
+| **Q1: Task Success (Accuracy)** | 53.3% (16 / 30) | **100.0% (30 / 30)** | **+46.7% absolute** |
+| — Easy Instances ($n=18$) | 100.0% (9 / 9) | **100.0% (9 / 9)** | Parity |
+| — Misleading Instances ($n=24$) | 33.3% (4 / 12) | **100.0% (12 / 12)** | **+66.7% absolute** |
+| — Conflicting Instances ($n=18$) | 33.3% (3 / 9) | **100.0% (9 / 9)** | **+66.7% absolute** |
+| **R1: Mean Revision Distance ($\bar{\delta}$)** | 0.617 $\pm$ 0.024 | **0.403 $\pm$ 0.015** | **-34.7% churn** |
+| **R2: Work Preservation** | 22.0% | **88.0%** | **4.0× Preservation** |
+| **R6: Perturbation Survival** | 53.3% | **100.0%** | **+46.7% survival** |
+| **C3: Diagnostic Queries** | 6.6 $\pm$ 2.4 | **5.7 $\pm$ 0.9** | **-13.6% queries** |
+
+---
+
+## Section F: Codebase Structure & Execution
+
+### F.1 Structure
 ```
 case_studies/system_monitoring/
 ├── README.md                  # CSS v1.0 Domain Report
-├── runner.py                  # Experiment runner (replaces experiment.py)
+├── summary.md                 # D6 Executive Summary Slide
+├── runner.py                  # Experiment runner
 ├── requirements.txt           # Python dependencies
 ├── environment.py             # System telemetry simulation environment
-├── verifier.py                # Deterministic verifier
-├── results.csv                # Summary metrics across runs
+├── results.csv                # Summary metrics across all 60 runs
 ├── instances/                 # 10 YAML evaluation instances (sysmon-001 to sysmon-010)
+├── verifier/                  # Deterministic verifier
+│   ├── __init__.py
+│   └── verifier.py            # G4 deterministic rules engine (zero LLM)
 ├── agents/                    # Agent implementations
 │   ├── __init__.py
 │   ├── arm_a.py               # Arm A baseline (Standard Autoregressive Agent)
 │   ├── arm_b.py               # Arm B' Hermeneutic Chamber Agent (State σ)
 │   └── chamber.py             # Hermeneutic Chamber update logic
 ├── tools/                     # Diagnostic tool definitions
-└── runs/                      # JSONL per-run execution logs
+└── runs/                      # JSONL per-run execution logs (60 benchmark traces)
 ```
 
-### E.2 Execution Instructions
+### F.2 Execution Instructions
 
 ```bash
 cd case_studies/system_monitoring
 
-# Run a single instance on Arm A
-python runner.py --instance sysmon-001 --arm A --seed 42
+# 1. Run full 60-run benchmark (10 instances x 2 arms x 3 seeds)
+python runner.py --benchmark
 
-# Run a single instance on Arm B
-python runner.py --instance sysmon-001 --arm B --seed 42
+# 2. Run full pilot matrix (10 instances on both arms = 20 runs)
+python runner.py --full-pilot
 
-# Run pilot (sysmon-001 on both arms)
+# 3. Run pilot (sysmon-001 on both arms = 2 runs)
 python runner.py --pilot
 
-# Run full pilot matrix (all 10 instances on both arms = 20 runs)
-python runner.py --full-pilot
+# 4. Run a single instance
+python runner.py --instance sysmon-001 --arm B --seed 42
 ```
+

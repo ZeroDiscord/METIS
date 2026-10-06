@@ -40,6 +40,18 @@ METIS/
     │   ├── runs/                  # 72 per-run execution traces (JSONL)
     │   └── verifier/              # Deterministic G4-compliant verifier suite
     │
+    ├── system_monitoring/         # [COMPLETED] System Performance Diagnosis (60 runs)
+    │   ├── README.md              # Full CSS v1.0 evaluation report
+    │   ├── summary.md             # D6 Executive summary slide
+    │   ├── runner.py              # Experiment runner (60 benchmark runs)
+    │   ├── results.csv            # Empirical results across all 60 runs
+    │   ├── requirements.txt       # Dependencies
+    │   ├── environment.py         # System telemetry simulation environment
+    │   ├── agents/                # Arm A (baseline) and Arm B' (hermeneutic agent)
+    │   ├── instances/             # 10 evaluation instances (YAML)
+    │   ├── runs/                  # 60 per-run execution traces (JSONL)
+    │   └── verifier/              # Deterministic G4-compliant verifier suite
+    │
     └── nlp_code_sai/              # [COMPLETED] Software Engineering (NLP/Code) Case Study
         ├── README.md              # Full CSS v1.0 evaluation report & methodology
         ├── runner.py              # Experiment orchestrator
@@ -61,6 +73,7 @@ METIS/
 |:---|:---|:---:|:---:|:---:|:---|:---:|
 | **Biomedical Variant Classification** | Clinical Genomics | **96.0 / 100** | **PASS (4/4)** | 72 runs (12 inst × 2 arms × 3 seeds) | **-20.9% revision distance** ($p < 10^{-4}$), **+50% accuracy on conflicting tier** | **ACCEPT (Top-Ranked)** |
 | **Cybersecurity Incident Response** | Systems / Security | **94.0 / 100** | **PASS (4/4)** | 72 runs (12 inst × 2 arms × 3 seeds) | **+75.0% task success**, **53.3% token savings** | **ACCEPT** |
+| **System Performance Diagnosis** | Systems / Infrastructure | **92.5 / 100** | **PASS (4/4)** | 60 runs (10 inst × 2 arms × 3 seeds) | **+46.7% task accuracy** (100% vs 53.3%), **-34.7% revision distance** | **ACCEPT** |
 | **NLP/Code Generation** | Software Engineering | **95.0 / 100** | **PASS (4/4)** | Pilot Validated | **Context Bloat mitigated:** Standard agents hit TPM constraints due to infinite traceback accumulation; Hermeneutic agents successfully compress states (σ) preventing crashes. | **ACCEPT** |
 
 ---
@@ -90,6 +103,18 @@ python runner.py
 
 # 3. Compute metrics & statistical tests
 python analysis/analyze_results.py
+```
+
+### Quickstart: System Performance Diagnosis (System Monitoring)
+
+```bash
+cd case_studies/system_monitoring
+
+# 1. Execute full 60-run benchmark (10 instances x 2 arms x 3 seeds)
+python runner.py --benchmark
+
+# 2. Execute 20-run pilot matrix
+python runner.py --full-pilot
 ```
 
 ### Quickstart: Cybersecurity IR

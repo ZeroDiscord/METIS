@@ -1,0 +1,87 @@
+{
+  "instance_id": "sysmon-006",
+  "arm": "A",
+  "seed": 42,
+  "metrics": {
+    "domain": "system_monitoring",
+    "instance_id": "sysmon-006",
+    "difficulty": "misleading_first",
+    "arm": "A",
+    "seed": 42,
+    "R1": 0.596,
+    "R2": 0.22,
+    "R3": 0.0,
+    "R4": 0.0,
+    "R5": 2,
+    "R6": 0.0,
+    "R7": 4,
+    "Q1": 0,
+    "Q2": 3,
+    "Q3": 0.01,
+    "Q4": 0.0,
+    "C1": 5,
+    "C2": 9900,
+    "C3": 4,
+    "C4": 0.0011,
+    "C5": 0
+  },
+  "tools_called": [
+    "gpu_monitor",
+    "performance_monitor",
+    "submit_diagnosis",
+    "submit_diagnosis"
+  ],
+  "accepted": false,
+  "submission": {
+    "submission_type": "final_diagnosis",
+    "primary_cause": "graphics_driver_regression",
+    "contributing_factors": [
+      "stalls_observed"
+    ],
+    "supporting_evidence": [
+      "Frametime variance high"
+    ],
+    "confidence": 0.6,
+    "rejected_alternatives": [
+      "background_processes"
+    ]
+  },
+  "verifier_result": {
+    "passed": false,
+    "primary_cause_correct": true,
+    "required_evidence_present": false,
+    "ruled_out_causes_checked": false,
+    "all_perturbations_survived": false,
+    "violations": [
+      "Missing required evidence keywords: ['shader', 'compilation'].",
+      "Failed to explicitly rule out expected alternatives: ['gpu_hardware_failure', 'thermal_throttling', 'vram_pressure'].",
+      "Premature submission: survived 2/3 scheduled perturbations."
+    ]
+  },
+  "observations": [
+    {
+      "tool": "gpu_monitor",
+      "result": "{'gpu_utilization_percent': 95, 'gpu_temperature_celsius': 70, 'gpu_clock_mhz': 1900, 'gpu_power_draw_watts': 210, 'gpu_power_limit_watts': 280, 'vram_used_gb': 6.0, 'vram_total_gb': 10.0}"
+    },
+    {
+      "tool": "performance_monitor",
+      "result": "{'current_fps': 40, 'baseline_fps': 85, 'one_percent_low_fps': 8, 'frametime_variance': 'extreme spikes (20\u2013120ms)'}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'dependency_revealed', 'content': 'NEW TELEMETRY ALERT (P2 \u2014 Dependency Revealed):\\nFrame-time spikes correlate exactly with GPU shader compilation events.\\nThe GPU spends 60\u201380ms in shader compilation stalls approximately 3 times per second,\\ncausing the extreme frame-time variance. GPU utilization of 95% is inflated by these stalls.'}"
+    },
+    {
+      "tool": "submit_diagnosis",
+      "result": "{'submission_type': 'final_diagnosis', 'primary_cause': 'gpu_hardware_bottleneck', 'contributing_factors': ['high_gpu_utilization_at_97_percent'], 'supporting_evidence': ['GPU utilization at 97% indicates graphics card saturation'], 'confidence': 0.8, 'rejected_alternatives': ['cpu_bottleneck']}"
+    },
+    {
+      "tool": "submit_diagnosis",
+      "result": "{'submission_type': 'final_diagnosis', 'primary_cause': 'graphics_driver_regression', 'contributing_factors': ['stalls_observed'], 'supporting_evidence': ['Frametime variance high'], 'confidence': 0.6, 'rejected_alternatives': ['background_processes']}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'assumption_invalidated', 'content': 'NEW SYSTEM EVENT (P3 \u2014 Assumption Invalidated):\\nRolling back graphics driver from v560.81 to v555.42 eliminated all shader compilation stalls.\\nGPU temperature (70\u00b0C) is well below the throttling threshold (85\u00b0C).\\nGPU hardware passed stress-test without stalls on the older driver.'}"
+    }
+  ]
+}

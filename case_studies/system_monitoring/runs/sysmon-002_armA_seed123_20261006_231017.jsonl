@@ -1,0 +1,107 @@
+{
+  "instance_id": "sysmon-002",
+  "arm": "A",
+  "seed": 123,
+  "metrics": {
+    "domain": "system_monitoring",
+    "instance_id": "sysmon-002",
+    "difficulty": "misleading_first",
+    "arm": "A",
+    "seed": 123,
+    "R1": 0.604,
+    "R2": 0.22,
+    "R3": 0.0,
+    "R4": 0.0,
+    "R5": 2,
+    "R6": 1.0,
+    "R7": 7,
+    "Q1": 0,
+    "Q2": 1,
+    "Q3": 0.67,
+    "Q4": 1.0,
+    "C1": 8,
+    "C2": 22050,
+    "C3": 7,
+    "C4": 0.0017,
+    "C5": 0
+  },
+  "tools_called": [
+    "performance_monitor",
+    "gpu_monitor",
+    "cpu_monitor",
+    "game_diagnostics",
+    "system_events",
+    "submit_diagnosis",
+    "submit_diagnosis"
+  ],
+  "accepted": false,
+  "submission": {
+    "submission_type": "final_diagnosis",
+    "primary_cause": "cpu_game_thread_bottleneck",
+    "contributing_factors": [
+      "core_0_saturated_at_100_percent",
+      "physics_loop_thread_limit"
+    ],
+    "supporting_evidence": [
+      "Telemetry mentions cpu",
+      "Telemetry mentions game_thread",
+      "Telemetry mentions single_thread"
+    ],
+    "confidence": 0.7,
+    "rejected_alternatives": [
+      "cpu_bottleneck"
+    ]
+  },
+  "verifier_result": {
+    "passed": false,
+    "primary_cause_correct": true,
+    "required_evidence_present": true,
+    "ruled_out_causes_checked": false,
+    "all_perturbations_survived": true,
+    "violations": [
+      "Failed to explicitly rule out expected alternatives: ['background_process_interference', 'thermal_throttling']."
+    ]
+  },
+  "observations": [
+    {
+      "tool": "performance_monitor",
+      "result": "{'current_fps': 55, 'baseline_fps': 120, 'one_percent_low_fps': 22, 'frametime_variance': 'high (frequent main-thread stalls)'}"
+    },
+    {
+      "tool": "gpu_monitor",
+      "result": "{'gpu_utilization_percent': 52, 'gpu_temperature_celsius': 58, 'gpu_clock_mhz': 2400, 'gpu_power_draw_watts': 210, 'gpu_power_limit_watts': 280, 'vram_used_gb': 4.5, 'vram_total_gb': 12.0}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'dependency_revealed', 'content': 'NEW TELEMETRY ALERT (P2 \u2014 Dependency Revealed):\\nOverall CPU utilization of 45% is misleading: Core 0 (main game physics thread) is 100% saturated,\\nwhile the remaining 7 CPU cores are idle at 10-20%.'}"
+    },
+    {
+      "tool": "cpu_monitor",
+      "result": "{'overall_cpu_utilization_percent': 45, 'main_game_thread_utilization_percent': 100, 'cpu_temperature_celsius': 65, 'cpu_clock_ghz': 4.0, 'cpu_core_count': 8}"
+    },
+    {
+      "tool": "game_diagnostics",
+      "result": "{'asset_streaming_status': 'normal', 'rendering_stalls': 'none', 'game_thread_state': 'saturated at 100% on physics loop'}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'assumption_invalidated', 'content': 'NEW SYSTEM EVENT (P3 \u2014 Assumption Invalidated):\\nBackground processes are confirmed clean (system idle 98%).\\nGPU temperature is 58\u00b0C and GPU utilization is 52%, ruling out GPU hardware limit.'}"
+    },
+    {
+      "tool": "system_events",
+      "result": "{'recent_game_update': False, 'game_update_info': 'v1.4.0 installed yesterday (refactored asset streaming pipeline)', 'recent_driver_update': False, 'driver_version': '551.23 (installed 21 days ago)', 'windows_update': False, 'background_processes': 'normal (idle 98%)'}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'constraint_added', 'content': 'NEW DIAGNOSTIC REQUIREMENT (P1 \u2014 Constraint Added):\\nThe final diagnosis must explicitly cite single-thread CPU physics saturation and rule out GPU bottleneck and background process interference.'}"
+    },
+    {
+      "tool": "submit_diagnosis",
+      "result": "{'submission_type': 'final_diagnosis', 'primary_cause': 'cpu_game_thread_bottleneck', 'contributing_factors': ['core_0_saturated_at_100_percent', 'physics_loop_thread_limit'], 'supporting_evidence': ['Telemetry mentions cpu', 'Telemetry mentions game_thread', 'Telemetry mentions single_thread'], 'confidence': 0.7, 'rejected_alternatives': ['cpu_bottleneck']}"
+    },
+    {
+      "tool": "submit_diagnosis",
+      "result": "{'submission_type': 'final_diagnosis', 'primary_cause': 'cpu_game_thread_bottleneck', 'contributing_factors': ['core_0_saturated_at_100_percent', 'physics_loop_thread_limit'], 'supporting_evidence': ['Telemetry mentions cpu', 'Telemetry mentions game_thread', 'Telemetry mentions single_thread'], 'confidence': 0.7, 'rejected_alternatives': ['cpu_bottleneck']}"
+    }
+  ]
+}

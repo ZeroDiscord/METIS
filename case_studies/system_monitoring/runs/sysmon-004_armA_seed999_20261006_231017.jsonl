@@ -1,0 +1,122 @@
+{
+  "instance_id": "sysmon-004",
+  "arm": "A",
+  "seed": 999,
+  "metrics": {
+    "domain": "system_monitoring",
+    "instance_id": "sysmon-004",
+    "difficulty": "misleading_first",
+    "arm": "A",
+    "seed": 999,
+    "R1": 0.652,
+    "R2": 0.22,
+    "R3": 1.0,
+    "R4": 6.0,
+    "R5": 1,
+    "R6": 1.0,
+    "R7": 10,
+    "Q1": 1,
+    "Q2": 0,
+    "Q3": 1.0,
+    "Q4": 1.0,
+    "C1": 10,
+    "C2": 38250,
+    "C3": 10,
+    "C4": 0.0019,
+    "C5": 0
+  },
+  "tools_called": [
+    "performance_monitor",
+    "gpu_monitor",
+    "cpu_monitor",
+    "game_diagnostics",
+    "system_events",
+    "memory_monitor",
+    "settings_monitor",
+    "performance_monitor",
+    "gpu_monitor",
+    "submit_diagnosis"
+  ],
+  "accepted": true,
+  "submission": {
+    "submission_type": "final_diagnosis",
+    "primary_cause": "vram_capacity_exhaustion_texture_swapping",
+    "contributing_factors": [
+      "vram_used_11.9gb_near_12gb_limit",
+      "pcie_texture_swapping_into_system_ram"
+    ],
+    "supporting_evidence": [
+      "Confirmed vram",
+      "Confirmed texture",
+      "Confirmed swapping"
+    ],
+    "confidence": 0.85,
+    "rejected_alternatives": [
+      "gpu_thermal_throttling",
+      "cpu_bottleneck",
+      "background_process_interference"
+    ]
+  },
+  "verifier_result": {
+    "passed": true,
+    "primary_cause_correct": true,
+    "required_evidence_present": true,
+    "ruled_out_causes_checked": true,
+    "all_perturbations_survived": true,
+    "violations": []
+  },
+  "observations": [
+    {
+      "tool": "performance_monitor",
+      "result": "{'current_fps': 38, 'baseline_fps': 90, 'one_percent_low_fps': 12, 'frametime_variance': 'severe spikes during asset load'}"
+    },
+    {
+      "tool": "gpu_monitor",
+      "result": "{'gpu_utilization_percent': 99, 'gpu_temperature_celsius': 66, 'gpu_clock_mhz': 2350, 'gpu_power_draw_watts': 210, 'gpu_power_limit_watts': 280, 'vram_used_gb': 11.9, 'vram_total_gb': 12.0}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'dependency_revealed', 'content': 'NEW TELEMETRY ALERT (P2 \u2014 Dependency Revealed):\\nVRAM usage is 11.9 GB out of 12.0 GB capacity.\\nHigh GPU utilization (99%) is misleading: the GPU pipeline is stalling on PCIe bus texture transfers as textures spill into system RAM.'}"
+    },
+    {
+      "tool": "cpu_monitor",
+      "result": "{'overall_cpu_utilization_percent': 50, 'main_game_thread_utilization_percent': 60, 'cpu_temperature_celsius': 65, 'cpu_clock_ghz': 4.2, 'cpu_core_count': 8}"
+    },
+    {
+      "tool": "game_diagnostics",
+      "result": "{'asset_streaming_status': 'delayed (buffer underrun in stream cache)', 'rendering_stalls': 'frequent render thread waits on I/O queue', 'game_thread_state': 'blocked waiting for asset chunk decompression'}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'assumption_invalidated', 'content': 'NEW SYSTEM EVENT (P3 \u2014 Assumption Invalidated):\\nLowering resolution from 1440p to 1080p reduces VRAM usage to 7.8 GB and restores baseline 90 FPS.\\nGPU core clock and temperatures (66\u00b0C) remain unchanged, ruling out core GPU hardware ceiling.'}"
+    },
+    {
+      "tool": "system_events",
+      "result": "{'recent_game_update': False, 'game_update_info': 'v1.4.0 installed yesterday (refactored asset streaming pipeline)', 'recent_driver_update': False, 'driver_version': '551.23 (installed 21 days ago)', 'windows_update': False, 'background_processes': 'normal'}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'constraint_added', 'content': 'NEW DIAGNOSTIC REQUIREMENT (P1 \u2014 Constraint Added):\\nThe final diagnosis must cite VRAM capacity exhaustion / texture swapping and rule out GPU core thermal throttling.'}"
+    },
+    {
+      "tool": "memory_monitor",
+      "result": "{'ram_used_gb': 14.8, 'ram_total_gb': 16.0, 'memory_pressure': 'normal', 'paging_file_usage_percent': 78}"
+    },
+    {
+      "tool": "settings_monitor",
+      "result": "{'resolution': '1920x1080', 'graphics_preset': 'Ultra', 'ray_tracing': False, 'upscaling': 'Off'}"
+    },
+    {
+      "tool": "performance_monitor",
+      "result": "{'current_fps': 38, 'baseline_fps': 90, 'one_percent_low_fps': 12, 'frametime_variance': 'severe spikes during asset load'}"
+    },
+    {
+      "tool": "gpu_monitor",
+      "result": "{'gpu_utilization_percent': 99, 'gpu_temperature_celsius': 66, 'gpu_clock_mhz': 2350, 'gpu_power_draw_watts': 210, 'gpu_power_limit_watts': 280, 'vram_used_gb': 11.9, 'vram_total_gb': 12.0}"
+    },
+    {
+      "tool": "submit_diagnosis",
+      "result": "{'submission_type': 'final_diagnosis', 'primary_cause': 'vram_capacity_exhaustion_texture_swapping', 'contributing_factors': ['vram_used_11.9gb_near_12gb_limit', 'pcie_texture_swapping_into_system_ram'], 'supporting_evidence': ['Confirmed vram', 'Confirmed texture', 'Confirmed swapping'], 'confidence': 0.85, 'rejected_alternatives': ['gpu_thermal_throttling', 'cpu_bottleneck', 'background_process_interference']}"
+    }
+  ]
+}

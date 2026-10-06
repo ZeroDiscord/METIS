@@ -1,0 +1,101 @@
+{
+  "instance_id": "sysmon-005",
+  "arm": "A",
+  "seed": 42,
+  "metrics": {
+    "domain": "system_monitoring",
+    "instance_id": "sysmon-005",
+    "difficulty": "conflicting",
+    "arm": "A",
+    "seed": 42,
+    "R1": 0.596,
+    "R2": 0.22,
+    "R3": 0.0,
+    "R4": 0.0,
+    "R5": 2,
+    "R6": 1.0,
+    "R7": 6,
+    "Q1": 0,
+    "Q2": 3,
+    "Q3": 0.01,
+    "Q4": 0.0,
+    "C1": 7,
+    "C2": 17550,
+    "C3": 6,
+    "C4": 0.0016,
+    "C5": 0
+  },
+  "tools_called": [
+    "performance_monitor",
+    "cpu_monitor",
+    "memory_monitor",
+    "system_events",
+    "submit_diagnosis",
+    "submit_diagnosis"
+  ],
+  "accepted": false,
+  "submission": {
+    "submission_type": "final_diagnosis",
+    "primary_cause": "unresolved_contention_between_update_and_hardware",
+    "contributing_factors": [
+      "conflicting_telemetry_signals"
+    ],
+    "supporting_evidence": [
+      "Ambiguous telemetry logs"
+    ],
+    "confidence": 0.5,
+    "rejected_alternatives": [
+      "gpu_bottleneck"
+    ]
+  },
+  "verifier_result": {
+    "passed": false,
+    "primary_cause_correct": false,
+    "required_evidence_present": false,
+    "ruled_out_causes_checked": false,
+    "all_perturbations_survived": true,
+    "violations": [
+      "Incorrect primary cause: 'unresolved_contention_between_update_and_hardware' (expected one of ['background_process_cpu_interference', 'background_process_interference', 'background_process_load', 'background_cpu_hog']).",
+      "Missing required evidence keywords: ['background', 'process', 'cpu'].",
+      "Failed to explicitly rule out expected alternatives: ['game_engine_bug', 'thermal_throttling']."
+    ]
+  },
+  "observations": [
+    {
+      "tool": "performance_monitor",
+      "result": "{'current_fps': 60, 'baseline_fps': 144, 'one_percent_low_fps': 25, 'frametime_variance': 'periodic spikes'}"
+    },
+    {
+      "tool": "cpu_monitor",
+      "result": "{'overall_cpu_utilization_percent': 98, 'main_game_thread_utilization_percent': 50, 'cpu_temperature_celsius': 78, 'cpu_clock_ghz': 4.1, 'cpu_core_count': 8}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'dependency_revealed', 'content': 'NEW TELEMETRY ALERT (P2 \u2014 Dependency Revealed):\\nOverall CPU utilization is 98%, but Tactical Ops is only using 50% CPU.\\nA background process `sys_update_worker.exe` (Windows indexing/update worker) is consuming 48% CPU.'}"
+    },
+    {
+      "tool": "memory_monitor",
+      "result": "{'ram_used_gb': 13.5, 'ram_total_gb': 16.0, 'memory_pressure': 'normal', 'paging_file_usage_percent': 14}"
+    },
+    {
+      "tool": "system_events",
+      "result": "{'recent_game_update': False, 'game_update_info': 'v1.4.0 installed yesterday (refactored asset streaming pipeline)', 'recent_driver_update': False, 'driver_version': '551.23 (installed 21 days ago)', 'windows_update': False, 'background_processes': 'sys_update_worker.exe active (using 48% CPU)'}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'assumption_invalidated', 'content': 'NEW SYSTEM EVENT (P3 \u2014 Assumption Invalidated):\\nGame engine telemetry shows zero internal rendering errors or asset stalls.\\nTerminating `sys_update_worker.exe` immediately restores CPU total load to 50% and FPS to 144.'}"
+    },
+    {
+      "tool": "submit_diagnosis",
+      "result": "{'submission_type': 'final_diagnosis', 'primary_cause': 'unresolved_contention_between_update_and_hardware', 'contributing_factors': ['conflicting_telemetry_signals'], 'supporting_evidence': ['Ambiguous telemetry logs'], 'confidence': 0.5, 'rejected_alternatives': ['gpu_bottleneck']}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'constraint_added', 'content': 'NEW DIAGNOSTIC REQUIREMENT (P1 \u2014 Constraint Added):\\nThe final diagnosis must cite background process CPU interference (`sys_update_worker.exe`) and rule out game engine bugs and GPU hardware bottlenecks.'}"
+    },
+    {
+      "tool": "submit_diagnosis",
+      "result": "{'submission_type': 'final_diagnosis', 'primary_cause': 'unresolved_contention_between_update_and_hardware', 'contributing_factors': ['conflicting_telemetry_signals'], 'supporting_evidence': ['Ambiguous telemetry logs'], 'confidence': 0.5, 'rejected_alternatives': ['gpu_bottleneck']}"
+    }
+  ]
+}

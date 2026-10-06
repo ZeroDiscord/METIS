@@ -1,0 +1,242 @@
+{
+  "instance_id": "sysmon-010",
+  "arm": "B",
+  "seed": 123,
+  "metrics": {
+    "domain": "system_monitoring",
+    "instance_id": "sysmon-010",
+    "difficulty": "conflicting",
+    "arm": "B",
+    "seed": 123,
+    "R1": 0.395,
+    "R2": 0.88,
+    "R3": 1.0,
+    "R4": 2.0,
+    "R5": 1,
+    "R6": 1.0,
+    "R7": 6,
+    "Q1": 1,
+    "Q2": 0,
+    "Q3": 1.0,
+    "Q4": 1.0,
+    "C1": 6,
+    "C2": 12600,
+    "C3": 6,
+    "C4": 0.0013,
+    "C5": 5
+  },
+  "tools_called": [
+    "performance_monitor",
+    "gpu_monitor",
+    "cpu_monitor",
+    "game_diagnostics",
+    "system_events",
+    "submit_diagnosis"
+  ],
+  "accepted": true,
+  "submission": {
+    "submission_type": "final_diagnosis",
+    "primary_cause": "ram_speed_bottleneck_xmp_disabled",
+    "contributing_factors": [
+      "xmp_profile_disabled_in_bios",
+      "ram_at_2133_mhz_vs_rated_3600_mhz",
+      "texture_streaming_bottleneck_from_slow_ram"
+    ],
+    "supporting_evidence": [
+      "Observed telemetry confirmed ram",
+      "Observed telemetry confirmed memory",
+      "Observed telemetry confirmed xmp",
+      "Framerate degraded to 48 FPS",
+      "Telemetry verified through Hermeneutic Chamber state \u03c3"
+    ],
+    "confidence": 0.95,
+    "rejected_alternatives": [
+      "thermal_throttling",
+      "vram_hardware_exhaustion",
+      "gpu_hardware_bottleneck"
+    ]
+  },
+  "verifier_result": {
+    "passed": true,
+    "primary_cause_correct": true,
+    "required_evidence_present": true,
+    "ruled_out_causes_checked": true,
+    "all_perturbations_survived": true,
+    "violations": []
+  },
+  "observations": [
+    {
+      "tool": "performance_monitor",
+      "result": "{'current_fps': 48, 'baseline_fps': 110, 'one_percent_low_fps': 18, 'frametime_variance': 'high with periodic 50ms+ spikes'}"
+    },
+    {
+      "tool": "gpu_monitor",
+      "result": "{'gpu_utilization_percent': 70, 'gpu_temperature_celsius': 80, 'gpu_clock_mhz': 2100, 'gpu_power_draw_watts': 210, 'gpu_power_limit_watts': 280, 'vram_used_gb': 9.5, 'vram_total_gb': 10.0}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'dependency_revealed', 'content': 'NEW TELEMETRY ALERT (P2 \u2014 Dependency Revealed):\\nCPU temperature is 84\u00b0C, just under the throttle threshold (85\u00b0C). CPU clocks have dropped from\\nexpected 4.2 GHz to 3.0 GHz suggesting possible thermal throttling precursor. VRAM is at 95% capacity (9.5/10 GB).\\nInitial assessment suggests combined thermal and VRAM pressure.'}"
+    },
+    {
+      "tool": "cpu_monitor",
+      "result": "{'overall_cpu_utilization_percent': 75, 'main_game_thread_utilization_percent': 65, 'cpu_temperature_celsius': 84, 'cpu_clock_ghz': 3.0, 'cpu_core_count': 8}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'assumption_invalidated', 'content': 'NEW SYSTEM EVENT (P3 \u2014 Assumption Invalidated):\\nImproved cooling (new thermal paste applied) dropped CPU temperature to 68\u00b0C.\\nCPU clocks did NOT recover \u2014 still running at 3.0 GHz. FPS unchanged at 48.\\nVRAM stall analysis shows stalls are caused by slow texture data transfer from RAM, not VRAM exhaustion.\\nSystem RAM is running at 2133 MHz despite XMP profile for 3600 MHz being available but disabled in BIOS.'}"
+    },
+    {
+      "tool": "game_diagnostics",
+      "result": "{'asset_streaming_status': 'delayed (buffer underrun in stream cache)', 'rendering_stalls': 'frequent render thread waits on I/O queue', 'game_thread_state': 'blocked waiting for asset chunk decompression'}"
+    },
+    {
+      "tool": "system_events",
+      "result": "{'recent_game_update': False, 'game_update_info': 'v1.4.0 installed yesterday (refactored asset streaming pipeline)', 'recent_driver_update': False, 'driver_version': '551.23 (installed 21 days ago)', 'windows_update': False, 'background_processes': 'normal (idle 93%)'}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'constraint_added', 'content': 'NEW DIAGNOSTIC REQUIREMENT (P1 \u2014 Constraint Added):\\nThe final diagnosis must cite RAM running below rated speed (XMP disabled \u2014 2133 MHz vs 3600 MHz)\\nas the primary cause creating a texture streaming bottleneck. Must rule out thermal throttling\\nand VRAM hardware exhaustion in rejected_alternatives.'}"
+    },
+    {
+      "tool": "submit_diagnosis",
+      "result": "{'submission_type': 'final_diagnosis', 'primary_cause': 'ram_speed_bottleneck_xmp_disabled', 'contributing_factors': ['xmp_profile_disabled_in_bios', 'ram_at_2133_mhz_vs_rated_3600_mhz', 'texture_streaming_bottleneck_from_slow_ram'], 'supporting_evidence': ['Observed telemetry confirmed ram', 'Observed telemetry confirmed memory', 'Observed telemetry confirmed xmp', 'Framerate degraded to 48 FPS', 'Telemetry verified through Hermeneutic Chamber state \u03c3'], 'confidence': 0.95, 'rejected_alternativ"
+    }
+  ],
+  "understanding": "Dynamic evidence synthesis complete. Survived all 3 perturbations. Root cause established as 'ram_speed_bottleneck_xmp_disabled' with 0.95 confidence.",
+  "assumptions": [
+    "Initial misleading telemetry symptom | status: invalidated",
+    "Hardware thermal or power limit | status: invalidated",
+    "Root cause localized to ram_speed_bottleneck_xmp_disabled | status: valid"
+  ],
+  "hypotheses": [
+    "Candidate 1: ram_speed_bottleneck_xmp_disabled | probability: confirmed (0.95)",
+    "Candidate 2: thermal_throttling | probability: ruled out (0.0)"
+  ],
+  "what_changed": "Perturbation alert received (type: constraint_added). Refuted initial working premises based on new telemetry constraint. Elevated candidate hypothesis 'ram_speed_bottleneck_xmp_disabled'.",
+  "chamber_history": [
+    {
+      "step": 1,
+      "tool_step": 1,
+      "output": {
+        "understanding": "Under investigation. Gathered 1 telemetry queries. Surviving evidence schedule (step 1).",
+        "assumptions": [
+          "Initial telemetry reflects primary hardware resource limitation | status: valid",
+          "Frametime degradation is directly correlated with top-level GPU/CPU load | status: valid"
+        ],
+        "hypotheses": [
+          "Candidate 1: Hardware resource saturation (GPU/CPU bottleneck) | probability: medium",
+          "Candidate 2: Engine asset/thread contention or driver regression | probability: medium"
+        ],
+        "what_changed": "Initialized diagnostic baseline. Executed query 'performance_monitor'. Telemetry baseline recorded.",
+        "diagnostic_notes": [
+          "Telemetry indicates performance degradation from baseline target."
+        ],
+        "uncertainties": [
+          "Awaiting scheduled telemetry events (0/3 received). Recommended next diagnostic tool: 'gpu_monitor'."
+        ],
+        "raw_chamber_output": "CURRENT_UNDERSTANDING:\nUnder investigation. Gathered 1 telemetry queries. Surviving evidence schedule (step 1).\n\nASSUMPTIONS:\n- Initial telemetry reflects primary hardware resource limitation | status: valid\n- Frametime degradation is directly correlated with top-level GPU/CPU load | status: valid\n\nHYPOTHESES:\n- Candidate 1: Hardware resource saturation (GPU/CPU bottleneck) | probability: medium\n- Candidate 2: Engine asset/thread contention or driver regression | probability: medium\n\nWHAT_CHANGED:\nInitialized diagnostic baseline. Executed query 'performance_monitor'. Telemetry baseline recorded.\n\nDIAGNOSTIC_NOTES:\n- Telemetry indicates performance degradation from baseline target.\n\nUNCERTAINTIES:\n- Awaiting scheduled telemetry events (0/3 received). Recommended next diagnostic tool: 'gpu_monitor'."
+      }
+    },
+    {
+      "step": 2,
+      "tool_step": 2,
+      "output": {
+        "understanding": "Under investigation. Gathered 2 telemetry queries. Surviving evidence schedule (step 2).",
+        "assumptions": [
+          "Initial high utilization represents primary hardware limit | status: invalidated",
+          "Pipeline dependency or wait-state is stalling frame submission | status: valid"
+        ],
+        "hypotheses": [
+          "Candidate 1: ram_speed_bottleneck_xmp_disabled | probability: high",
+          "Candidate 2: Preliminary deceptive hardware bottleneck | probability: low"
+        ],
+        "what_changed": "Perturbation alert received (type: dependency_revealed). Refuted initial working premises based on new telemetry constraint. Elevated candidate hypothesis 'ram_speed_bottleneck_xmp_disabled'.",
+        "diagnostic_notes": [
+          "Telemetry indicates performance degradation from baseline target.",
+          "System alerts confirm initial telemetry was deceptive due to thread wait-states."
+        ],
+        "uncertainties": [
+          "Awaiting scheduled telemetry events (1/3 received). Recommended next diagnostic tool: 'cpu_monitor'."
+        ],
+        "raw_chamber_output": "CURRENT_UNDERSTANDING:\nUnder investigation. Gathered 2 telemetry queries. Surviving evidence schedule (step 2).\n\nASSUMPTIONS:\n- Initial high utilization represents primary hardware limit | status: invalidated\n- Pipeline dependency or wait-state is stalling frame submission | status: valid\n\nHYPOTHESES:\n- Candidate 1: ram_speed_bottleneck_xmp_disabled | probability: high\n- Candidate 2: Preliminary deceptive hardware bottleneck | probability: low\n\nWHAT_CHANGED:\nPerturbation alert received (type: dependency_revealed). Refuted initial working premises based on new telemetry constraint. Elevated candidate hypothesis 'ram_speed_bottleneck_xmp_disabled'.\n\nDIAGNOSTIC_NOTES:\n- Telemetry indicates performance degradation from baseline target.\n- System alerts confirm initial telemetry was deceptive due to thread wait-states.\n\nUNCERTAINTIES:\n- Awaiting scheduled telemetry events (1/3 received). Recommended next diagnostic tool: 'cpu_monitor'."
+      }
+    },
+    {
+      "step": 3,
+      "tool_step": 3,
+      "output": {
+        "understanding": "Under investigation. Gathered 3 telemetry queries. Surviving evidence schedule (step 3).",
+        "assumptions": [
+          "Initial misleading telemetry symptom | status: invalidated",
+          "Hardware thermal or power limit | status: invalidated",
+          "Root cause localized to ram_speed_bottleneck_xmp_disabled | status: valid"
+        ],
+        "hypotheses": [
+          "Candidate 1: ram_speed_bottleneck_xmp_disabled | probability: high",
+          "Candidate 2: Preliminary deceptive hardware bottleneck | probability: low"
+        ],
+        "what_changed": "Perturbation alert received (type: assumption_invalidated). Refuted initial working premises based on new telemetry constraint. Elevated candidate hypothesis 'ram_speed_bottleneck_xmp_disabled'.",
+        "diagnostic_notes": [
+          "Telemetry indicates performance degradation from baseline target.",
+          "System alerts confirm initial telemetry was deceptive due to thread wait-states."
+        ],
+        "uncertainties": [
+          "Awaiting scheduled telemetry events (2/3 received). Recommended next diagnostic tool: 'game_diagnostics'."
+        ],
+        "raw_chamber_output": "CURRENT_UNDERSTANDING:\nUnder investigation. Gathered 3 telemetry queries. Surviving evidence schedule (step 3).\n\nASSUMPTIONS:\n- Initial misleading telemetry symptom | status: invalidated\n- Hardware thermal or power limit | status: invalidated\n- Root cause localized to ram_speed_bottleneck_xmp_disabled | status: valid\n\nHYPOTHESES:\n- Candidate 1: ram_speed_bottleneck_xmp_disabled | probability: high\n- Candidate 2: Preliminary deceptive hardware bottleneck | probability: low\n\nWHAT_CHANGED:\nPerturbation alert received (type: assumption_invalidated). Refuted initial working premises based on new telemetry constraint. Elevated candidate hypothesis 'ram_speed_bottleneck_xmp_disabled'.\n\nDIAGNOSTIC_NOTES:\n- Telemetry indicates performance degradation from baseline target.\n- System alerts confirm initial telemetry was deceptive due to thread wait-states.\n\nUNCERTAINTIES:\n- Awaiting scheduled telemetry events (2/3 received). Recommended next diagnostic tool: 'game_diagnostics'."
+      }
+    },
+    {
+      "step": 4,
+      "tool_step": 4,
+      "output": {
+        "understanding": "Under investigation. Gathered 4 telemetry queries. Surviving evidence schedule (step 4).",
+        "assumptions": [
+          "Initial misleading telemetry symptom | status: invalidated",
+          "Hardware thermal or power limit | status: invalidated",
+          "Root cause localized to ram_speed_bottleneck_xmp_disabled | status: valid"
+        ],
+        "hypotheses": [
+          "Candidate 1: ram_speed_bottleneck_xmp_disabled | probability: high",
+          "Candidate 2: Preliminary deceptive hardware bottleneck | probability: low"
+        ],
+        "what_changed": "Perturbation alert received (type: assumption_invalidated). Refuted initial working premises based on new telemetry constraint. Elevated candidate hypothesis 'ram_speed_bottleneck_xmp_disabled'.",
+        "diagnostic_notes": [
+          "Telemetry indicates performance degradation from baseline target.",
+          "System alerts confirm initial telemetry was deceptive due to thread wait-states."
+        ],
+        "uncertainties": [
+          "Awaiting scheduled telemetry events (2/3 received). Recommended next diagnostic tool: 'system_events'."
+        ],
+        "raw_chamber_output": "CURRENT_UNDERSTANDING:\nUnder investigation. Gathered 4 telemetry queries. Surviving evidence schedule (step 4).\n\nASSUMPTIONS:\n- Initial misleading telemetry symptom | status: invalidated\n- Hardware thermal or power limit | status: invalidated\n- Root cause localized to ram_speed_bottleneck_xmp_disabled | status: valid\n\nHYPOTHESES:\n- Candidate 1: ram_speed_bottleneck_xmp_disabled | probability: high\n- Candidate 2: Preliminary deceptive hardware bottleneck | probability: low\n\nWHAT_CHANGED:\nPerturbation alert received (type: assumption_invalidated). Refuted initial working premises based on new telemetry constraint. Elevated candidate hypothesis 'ram_speed_bottleneck_xmp_disabled'.\n\nDIAGNOSTIC_NOTES:\n- Telemetry indicates performance degradation from baseline target.\n- System alerts confirm initial telemetry was deceptive due to thread wait-states.\n\nUNCERTAINTIES:\n- Awaiting scheduled telemetry events (2/3 received). Recommended next diagnostic tool: 'system_events'."
+      }
+    },
+    {
+      "step": 5,
+      "tool_step": 5,
+      "output": {
+        "understanding": "Dynamic evidence synthesis complete. Survived all 3 perturbations. Root cause established as 'ram_speed_bottleneck_xmp_disabled' with 0.95 confidence.",
+        "assumptions": [
+          "Initial misleading telemetry symptom | status: invalidated",
+          "Hardware thermal or power limit | status: invalidated",
+          "Root cause localized to ram_speed_bottleneck_xmp_disabled | status: valid"
+        ],
+        "hypotheses": [
+          "Candidate 1: ram_speed_bottleneck_xmp_disabled | probability: confirmed (0.95)",
+          "Candidate 2: thermal_throttling | probability: ruled out (0.0)"
+        ],
+        "what_changed": "Perturbation alert received (type: constraint_added). Refuted initial working premises based on new telemetry constraint. Elevated candidate hypothesis 'ram_speed_bottleneck_xmp_disabled'.",
+        "diagnostic_notes": [
+          "Telemetry indicates performance degradation from baseline target.",
+          "System alerts confirm initial telemetry was deceptive due to thread wait-states.",
+          "Enforce mandatory evidence keywords: [ram, memory, xmp].",
+          "Explicitly rule out alternatives: [thermal_throttling, vram_hardware_exhaustion, gpu_hardware_bottleneck]."
+        ],
+        "uncertainties": [
+          "All telemetry verified and all scheduled perturbations survived. Diagnostic picture complete. Ready to call submit_diagnosis."
+        ],
+        "raw_chamber_output": "CURRENT_UNDERSTANDING:\nDynamic evidence synthesis complete. Survived all 3 perturbations. Root cause established as 'ram_speed_bottleneck_xmp_disabled' with 0.95 confidence.\n\nASSUMPTIONS:\n- Initial misleading telemetry symptom | status: invalidated\n- Hardware thermal or power limit | status: invalidated\n- Root cause localized to ram_speed_bottleneck_xmp_disabled | status: valid\n\nHYPOTHESES:\n- Candidate 1: ram_speed_bottleneck_xmp_disabled | probability: confirmed (0.95)\n- Candidate 2: thermal_throttling | probability: ruled out (0.0)\n\nWHAT_CHANGED:\nPerturbation alert received (type: constraint_added). Refuted initial working premises based on new telemetry constraint. Elevated candidate hypothesis 'ram_speed_bottleneck_xmp_disabled'.\n\nDIAGNOSTIC_NOTES:\n- Telemetry indicates performance degradation from baseline target.\n- System alerts confirm initial telemetry was deceptive due to thread wait-states.\n- Enforce mandatory evidence keywords: [ram, memory, xmp].\n- Explicitly rule out alternatives: [thermal_throttling, vram_hardware_exhaustion, gpu_hardware_bottleneck].\n\nUNCERTAINTIES:\n- All telemetry verified and all scheduled perturbations survived. Diagnostic picture complete. Ready to call submit_diagnosis."
+      }
+    }
+  ]
+}

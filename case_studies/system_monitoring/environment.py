@@ -60,9 +60,11 @@ class SystemEnvironment:
             "dlss_fsr": "Off",
         }
 
-        # Override defaults if instance config specifies overrides
-        if instance_data and "environment_overrides" in instance_data:
-            self.state.update(instance_data["environment_overrides"])
+        # Override defaults if instance config specifies overrides (either top-level or under initial_spec)
+        if instance_data:
+            overrides = instance_data.get("environment_overrides") or instance_data.get("initial_spec", {}).get("environment_overrides")
+            if overrides:
+                self.state.update(overrides)
 
     # ── Telemetry Query Methods ──────────────────────────────────────────────
 
