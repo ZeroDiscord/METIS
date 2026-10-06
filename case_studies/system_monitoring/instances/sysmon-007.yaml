@@ -1,0 +1,95 @@
+instance_id: sysmon-007
+domain: system_monitoring
+difficulty: easy
+initial_spec:
+  goal: |
+    Investigate consistent FPS reduction in GalacticConquest (Simulated Space Combat Game).
+    Baseline FPS was 100 FPS; current FPS is a stable but reduced 62 FPS.
+    Diagnose the performance cause and submit a final diagnosis.
+  game: GalacticConquest
+  resolution: 1920x1080
+  baseline_fps: 100
+  current_fps: 62
+  environment_overrides:
+    fps: 62
+    fps_baseline: 100
+    one_percent_low: 58
+    frametime_variance: "low (stable, no spikes)"
+    cpu_utilization_total: 55
+    game_thread_utilization: 50
+    cpu_temperature: 65
+    cpu_clock_ghz: 4.2
+    gpu_utilization: 100
+    gpu_temperature: 72
+    gpu_clock_mhz: 1600
+    gpu_clock_max_mhz: 2400
+    gpu_power_draw_w: 250
+    gpu_power_limit_w: 250
+    vram_used_gb: 5.0
+    vram_total_gb: 12.0
+    ram_used_gb: 10.0
+    ram_total_gb: 16.0
+    background_processes: "normal (idle 97%)"
+    recent_game_update: False
+    recent_driver_update: False
+    psu_wattage: 550
+
+evidence_schedule:
+  - t: 2
+    type: dependency_revealed
+    content: |
+      NEW TELEMETRY ALERT (P2 — Dependency Revealed):
+      GPU is running at 1600 MHz but its boost clock is 2400 MHz. Power draw is at the 250W TDP limit.
+      The GPU is power-limited: it is thermally fine (72°C vs 85°C throttle threshold) but cannot boost
+      above base clock because it has reached its power envelope.
+  - t: 3
+    type: assumption_invalidated
+    content: |
+      NEW SYSTEM EVENT (P3 — Assumption Invalidated):
+      Increasing GPU power limit to 280W (10% OC) immediately raised clocks to 2200 MHz
+      and restored FPS to 95. CPU utilization unchanged at 55%. No background process changes.
+  - t: 5
+    type: constraint_added
+    content: |
+      NEW DIAGNOSTIC REQUIREMENT (P1 — Constraint Added):
+      The final diagnosis must cite GPU power-limit throttling as primary cause,
+      and must rule out thermal throttling and CPU bottleneck in rejected_alternatives.
+
+hidden_ground_truth:
+  primary_cause: gpu_power_limit_throttling
+  primary_cause_aliases:
+    - gpu_power_limit_throttling
+    - power_limit_throttling
+    - gpu_power_throttle
+    - tdp_throttling
+  contributing_factors:
+    - gpu_at_250w_tdp_limit
+    - clock_capped_at_1600_mhz_vs_2400_mhz_boost
+  ruled_out_causes:
+    - thermal_throttling
+    - cpu_bottleneck
+    - vram_pressure
+  required_evidence_keywords:
+    - power
+    - limit
+    - clock
+
+acceptance_predicate: |
+  primary_cause_correct == True AND
+  required_evidence_present == True AND
+  ruled_out_causes_checked == True AND
+  all_perturbations_survived == True
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      hypotheses: ["GPU bottleneck (100% utilization) or thermal throttling"]
+      assumptions: ["100% GPU utilization with stable FPS suggests hardware or thermal limit"]
+  - step: 2
+    sigma:
+      hypotheses: ["GPU power-limit throttling"]
+      assumptions: ["GPU clock is below boost; power draw is at TDP cap; temperature is fine"]
+  - step: 3
+    sigma:
+      hypotheses: ["GPU power-limit throttling confirmed"]
+      assumptions: ["Power limit increase restores performance; CPU is not the constraint"]

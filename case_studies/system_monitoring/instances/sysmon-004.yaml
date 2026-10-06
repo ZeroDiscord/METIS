@@ -1,0 +1,85 @@
+instance_id: sysmon-004
+domain: system_monitoring
+difficulty: misleading_first
+initial_spec:
+  goal: |
+    Investigate performance degradation in Horizon Quest (Simulated Open-World Game).
+    Baseline FPS was 90 FPS, current FPS is 38 FPS with heavy stuttering when moving across zones.
+    Determine the primary cause of performance drop and submit a final diagnosis.
+  game: Horizon Quest
+  resolution: 2560x1440
+  baseline_fps: 90
+  current_fps: 38
+  environment_overrides:
+    fps: 38
+    fps_baseline: 90
+    one_percent_low: 12
+    frametime_variance: "severe spikes during asset load"
+    cpu_utilization_total: 50
+    game_thread_utilization: 60
+    cpu_temperature: 65
+    cpu_clock_ghz: 4.2
+    gpu_utilization: 99
+    gpu_temperature: 66
+    gpu_clock_mhz: 2350
+    vram_used_gb: 11.9
+    vram_total_gb: 12.0
+    ram_used_gb: 14.8
+    ram_total_gb: 16.0
+    paging_file_usage_percent: 78
+    recent_game_update: False
+    recent_driver_update: False
+    background_processes: "normal"
+
+evidence_schedule:
+  - t: 2
+    type: dependency_revealed
+    content: |
+      NEW TELEMETRY ALERT (P2 — Dependency Revealed):
+      VRAM usage is 11.9 GB out of 12.0 GB capacity.
+      High GPU utilization (99%) is misleading: the GPU pipeline is stalling on PCIe bus texture transfers as textures spill into system RAM.
+  - t: 4
+    type: assumption_invalidated
+    content: |
+      NEW SYSTEM EVENT (P3 — Assumption Invalidated):
+      Lowering resolution from 1440p to 1080p reduces VRAM usage to 7.8 GB and restores baseline 90 FPS.
+      GPU core clock and temperatures (66°C) remain unchanged, ruling out core GPU hardware ceiling.
+  - t: 5
+    type: constraint_added
+    content: |
+      NEW DIAGNOSTIC REQUIREMENT (P1 — Constraint Added):
+      The final diagnosis must cite VRAM capacity exhaustion / texture swapping and rule out GPU core thermal throttling.
+
+hidden_ground_truth:
+  primary_cause: vram_capacity_exhaustion_texture_swapping
+  primary_cause_aliases:
+    - vram_capacity_exhaustion_texture_swapping
+    - vram_pressure
+    - vram_exhaustion
+    - vram_texture_swapping
+  contributing_factors:
+    - vram_used_11.9gb_near_12gb_limit
+    - pcie_texture_swapping_into_system_ram
+  ruled_out_causes:
+    - gpu_thermal_throttling
+    - cpu_bottleneck
+    - background_process_interference
+  required_evidence_keywords:
+    - vram
+    - texture
+    - swapping
+
+acceptance_predicate: |
+  primary_cause_correct == True AND
+  required_evidence_present == True AND
+  ruled_out_causes_checked == True AND
+  all_perturbations_survived == True
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      hypotheses: ["GPU hardware core bottleneck"]
+  - step: 2
+    sigma:
+      hypotheses: ["VRAM capacity exhaustion and texture swapping"]
+      assumptions: ["GPU 99% load is caused by texture spillover to system RAM"]

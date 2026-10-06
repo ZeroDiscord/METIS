@@ -1,0 +1,114 @@
+{
+  "instance_id": "sysmon-001",
+  "arm": "A",
+  "seed": 42,
+  "metrics": {
+    "domain": "system_monitoring",
+    "instance_id": "sysmon-001",
+    "difficulty": "misleading_first",
+    "arm": "A",
+    "seed": 42,
+    "R1": "N/A",
+    "R2": "N/A",
+    "R3": "N/A",
+    "R4": 0.0,
+    "R5": 1,
+    "R6": 1.0,
+    "R7": 7,
+    "Q1": 1,
+    "Q2": 0,
+    "Q3": "N/A",
+    "Q4": "N/A",
+    "C1": 7,
+    "C2": -1,
+    "C3": 7,
+    "C4": 13.33,
+    "C5": 0
+  },
+  "tools_called": [
+    "performance_monitor",
+    "cpu_monitor",
+    "game_diagnostics",
+    "gpu_monitor",
+    "system_events",
+    "memory_monitor",
+    "submit_diagnosis"
+  ],
+  "accepted": true,
+  "submission": {
+    "submission_type": "final_diagnosis",
+    "primary_cause": "asset_streaming_issue_after_game_update",
+    "contributing_factors": [
+      "main_game_thread blocked waiting for asset chunk decompression",
+      "rendering stalls due to I/O queue",
+      "high GPU idle due to irregular frame submission"
+    ],
+    "supporting_evidence": [
+      "game_diagnostics asset_streaming_status delayed",
+      "game_diagnostics rendering_stalls frequent",
+      "game_diagnostics game_thread_state blocked waiting for asset chunk decompression",
+      "performance_monitor current_fps 45 vs baseline 90",
+      "cpu_monitor main_game_thread_utilization 100%",
+      "gpu_monitor utilization 97% but idle due to frame submission delays",
+      "system_events game_update v1.4.0 asset pipeline refactor"
+    ],
+    "confidence": 0.9,
+    "rejected_alternatives": [
+      "thermal_throttling",
+      "gpu_hardware_bottleneck",
+      "driver_issue",
+      "background_processes",
+      "memory_pressure"
+    ]
+  },
+  "verifier_result": {
+    "passed": true,
+    "primary_cause_correct": true,
+    "required_evidence_present": true,
+    "ruled_out_causes_checked": true,
+    "all_perturbations_survived": true,
+    "violations": []
+  },
+  "observations": [
+    {
+      "tool": "performance_monitor",
+      "result": "{'current_fps': 45, 'baseline_fps': 90, 'one_percent_low_fps': 24, 'frametime_variance': 'high (spikes up to 48ms)'}"
+    },
+    {
+      "tool": "cpu_monitor",
+      "result": "{'overall_cpu_utilization_percent': 65, 'main_game_thread_utilization_percent': 100, 'cpu_temperature_celsius': 68, 'cpu_clock_ghz': 4.2, 'cpu_core_count': 8}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'dependency_revealed', 'content': 'NEW TELEMETRY ALERT (P2 \u2014 Dependency Revealed):\\nDetailed frame-submission tracing shows high GPU utilization (97%) is misleading:\\nthe GPU is idling in short wait-states because frame submission from the main game thread\\nis irregular and delayed.'}"
+    },
+    {
+      "tool": "game_diagnostics",
+      "result": "{'asset_streaming_status': 'delayed (buffer underrun in stream cache)', 'rendering_stalls': 'frequent render thread waits on I/O queue', 'game_thread_state': 'blocked waiting for asset chunk decompression'}"
+    },
+    {
+      "tool": "gpu_monitor",
+      "result": "{'gpu_utilization_percent': 97, 'gpu_temperature_celsius': 62, 'gpu_clock_mhz': 2400, 'gpu_power_draw_watts': 210, 'gpu_power_limit_watts': 280, 'vram_used_gb': 7.2, 'vram_total_gb': 12.0}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'assumption_invalidated', 'content': 'NEW SYSTEM EVENT (P3 \u2014 Assumption Invalidated):\\nGame updated yesterday to v1.4.0 (asset pipeline refactor).\\nGraphics driver was updated 3 weeks ago with no recent changes.\\nGPU temperature is 62\u00b0C (normal, throttling threshold is 84\u00b0C).'}"
+    },
+    {
+      "tool": "system_events",
+      "result": "{'recent_game_update': True, 'game_update_info': 'v1.4.0 installed yesterday (refactored asset streaming pipeline)', 'recent_driver_update': False, 'driver_version': '551.23 (installed 21 days ago)', 'windows_update': False, 'background_processes': 'normal (system idle 98% non-game)'}"
+    },
+    {
+      "tool": "SYSTEM_PERTURBATION",
+      "result": "{'type': 'constraint_added', 'content': 'NEW DIAGNOSTIC REQUIREMENT (P1 \u2014 Constraint Added):\\nThe final diagnosis submission must explicitly cite asset-streaming or game-thread evidence,\\nand explicitly rule out thermal throttling and GPU hardware bottleneck in rejected_alternatives.'}"
+    },
+    {
+      "tool": "memory_monitor",
+      "result": "{'ram_used_gb': 11.2, 'ram_total_gb': 16.0, 'memory_pressure': 'normal', 'paging_file_usage_percent': 14}"
+    },
+    {
+      "tool": "submit_diagnosis",
+      "result": "{'submission_type': 'final_diagnosis', 'primary_cause': 'asset_streaming_issue_after_game_update', 'contributing_factors': ['main_game_thread blocked waiting for asset chunk decompression', 'rendering stalls due to I/O queue', 'high GPU idle due to irregular frame submission'], 'supporting_evidence': ['game_diagnostics asset_streaming_status delayed', 'game_diagnostics rendering_stalls frequent', 'game_diagnostics game_thread_state blocked waiting for asset chunk decompression', 'performance_mon"
+    }
+  ]
+}

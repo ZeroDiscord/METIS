@@ -1,0 +1,94 @@
+instance_id: sysmon-008
+domain: system_monitoring
+difficulty: easy
+initial_spec:
+  goal: |
+    Investigate FPS drop in NightStalker (Simulated Stealth Action Game).
+    Baseline FPS was 80 FPS at Medium settings; current FPS is 38 FPS at the same resolution.
+    Identify the cause and submit a final diagnosis.
+  game: NightStalker
+  resolution: 1920x1080
+  baseline_fps: 80
+  current_fps: 38
+  environment_overrides:
+    fps: 38
+    fps_baseline: 80
+    one_percent_low: 32
+    frametime_variance: "moderate (stable pattern)"
+    cpu_utilization_total: 40
+    game_thread_utilization: 35
+    cpu_temperature: 55
+    cpu_clock_ghz: 3.6
+    gpu_utilization: 99
+    gpu_temperature: 74
+    gpu_clock_mhz: 2350
+    vram_used_gb: 9.2
+    vram_total_gb: 10.0
+    ram_used_gb: 9.0
+    ram_total_gb: 16.0
+    background_processes: "normal (idle 96%)"
+    recent_game_update: False
+    recent_driver_update: False
+    in_game_settings: "Ray Tracing: Ultra, Shadow Quality: Ultra, Texture Quality: Ultra"
+    previous_settings: "Ray Tracing: Off, Shadow Quality: Medium, Texture Quality: High"
+
+evidence_schedule:
+  - t: 2
+    type: dependency_revealed
+    content: |
+      NEW TELEMETRY ALERT (P2 — Dependency Revealed):
+      VRAM usage is 9.2 GB out of 10.0 GB. GPU is at 99% utilization because it is rendering
+      full ray-tracing at Ultra quality. Settings were changed from Medium/No-RT to Ultra/RT
+      approximately 3 days ago. CPU and memory are not strained.
+  - t: 3
+    type: assumption_invalidated
+    content: |
+      NEW SYSTEM EVENT (P3 — Assumption Invalidated):
+      Reverting in-game settings to Ray Tracing Off and Shadow/Texture Medium immediately
+      restored FPS to 78. GPU temperature (74°C) is below throttle threshold (85°C).
+      No driver or OS changes in the past 30 days.
+  - t: 5
+    type: constraint_added
+    content: |
+      NEW DIAGNOSTIC REQUIREMENT (P1 — Constraint Added):
+      The final diagnosis must explicitly cite in-game settings change (ray-tracing/ultra quality)
+      as the primary cause, and must rule out driver regression and thermal throttling.
+
+hidden_ground_truth:
+  primary_cause: in_game_settings_too_demanding
+  primary_cause_aliases:
+    - in_game_settings_too_demanding
+    - settings_change
+    - graphics_settings_increase
+    - ray_tracing_overload
+  contributing_factors:
+    - ray_tracing_ultra_enabled
+    - vram_at_92_percent_capacity
+  ruled_out_causes:
+    - driver_regression
+    - thermal_throttling
+    - cpu_bottleneck
+  required_evidence_keywords:
+    - settings
+    - ray
+    - vram
+
+acceptance_predicate: |
+  primary_cause_correct == True AND
+  required_evidence_present == True AND
+  ruled_out_causes_checked == True AND
+  all_perturbations_survived == True
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      hypotheses: ["GPU hardware bottleneck or VRAM exhaustion"]
+      assumptions: ["99% GPU utilization and high VRAM suggest GPU-bound scenario"]
+  - step: 2
+    sigma:
+      hypotheses: ["In-game settings changed to ray-tracing ultra — GPU is GPU-bound by workload choice"]
+      assumptions: ["Settings change 3 days ago is the root cause; hardware is functioning normally"]
+  - step: 3
+    sigma:
+      hypotheses: ["In-game graphics settings (ray tracing Ultra) confirmed as primary cause"]
+      assumptions: ["Reverting settings restores performance; hardware and driver are not at fault"]

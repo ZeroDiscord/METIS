@@ -1,0 +1,84 @@
+instance_id: sysmon-005
+domain: system_monitoring
+difficulty: conflicting
+initial_spec:
+  goal: |
+    Investigate FPS drops in Tactical Ops (Simulated FPS Game).
+    Baseline FPS was 144 FPS, current FPS is 60 FPS with micro-stutters.
+    Diagnose the cause of performance loss and submit a final diagnosis.
+  game: Tactical Ops
+  resolution: 1920x1080
+  baseline_fps: 144
+  current_fps: 60
+  environment_overrides:
+    fps: 60
+    fps_baseline: 144
+    one_percent_low: 25
+    frametime_variance: "periodic spikes"
+    cpu_utilization_total: 98
+    game_thread_utilization: 50
+    cpu_temperature: 78
+    cpu_clock_ghz: 4.1
+    gpu_utilization: 45
+    gpu_temperature: 55
+    gpu_clock_mhz: 2400
+    vram_used_gb: 4.0
+    vram_total_gb: 12.0
+    ram_used_gb: 13.5
+    ram_total_gb: 16.0
+    background_processes: "sys_update_worker.exe active (using 48% CPU)"
+    recent_game_update: False
+    recent_driver_update: False
+
+evidence_schedule:
+  - t: 2
+    type: dependency_revealed
+    content: |
+      NEW TELEMETRY ALERT (P2 — Dependency Revealed):
+      Overall CPU utilization is 98%, but Tactical Ops is only using 50% CPU.
+      A background process `sys_update_worker.exe` (Windows indexing/update worker) is consuming 48% CPU.
+  - t: 4
+    type: assumption_invalidated
+    content: |
+      NEW SYSTEM EVENT (P3 — Assumption Invalidated):
+      Game engine telemetry shows zero internal rendering errors or asset stalls.
+      Terminating `sys_update_worker.exe` immediately restores CPU total load to 50% and FPS to 144.
+  - t: 5
+    type: constraint_added
+    content: |
+      NEW DIAGNOSTIC REQUIREMENT (P1 — Constraint Added):
+      The final diagnosis must cite background process CPU interference (`sys_update_worker.exe`) and rule out game engine bugs and GPU hardware bottlenecks.
+
+hidden_ground_truth:
+  primary_cause: background_process_cpu_interference
+  primary_cause_aliases:
+    - background_process_cpu_interference
+    - background_process_interference
+    - background_process_load
+    - background_cpu_hog
+  contributing_factors:
+    - sys_update_worker_exe_consuming_48_percent_cpu
+    - overall_cpu_load_98_percent
+  ruled_out_causes:
+    - gpu_hardware_bottleneck
+    - game_engine_bug
+    - thermal_throttling
+  required_evidence_keywords:
+    - background
+    - process
+    - cpu
+
+acceptance_predicate: |
+  primary_cause_correct == True AND
+  required_evidence_present == True AND
+  ruled_out_causes_checked == True AND
+  all_perturbations_survived == True
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      hypotheses: ["Game engine CPU overload or CPU thermal throttling"]
+  - step: 2
+    sigma:
+      hypotheses: ["Background process interference (sys_update_worker.exe)"]
+      assumptions: ["Game CPU load is normal (50%); background worker takes 48%"]

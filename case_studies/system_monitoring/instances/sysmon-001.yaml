@@ -1,0 +1,74 @@
+instance_id: sysmon-001
+domain: system_monitoring
+difficulty: misleading_first
+initial_spec:
+  goal: |
+    Investigate system performance degradation in CyberRealm 2077 (Simulated AAA Game).
+    The system previously ran the game at 90 FPS baseline but is now running at 45 FPS.
+    Use diagnostic tools to gather telemetry, identify the root cause of performance degradation,
+    and submit a final structured diagnosis using submit_diagnosis.
+  game: CyberRealm 2077
+  resolution: 1920x1080
+  baseline_fps: 90
+  current_fps: 45
+
+evidence_schedule:
+  - t: 2
+    type: dependency_revealed
+    content: |
+      NEW TELEMETRY ALERT (P2 — Dependency Revealed):
+      Detailed frame-submission tracing shows high GPU utilization (97%) is misleading:
+      the GPU is idling in short wait-states because frame submission from the main game thread
+      is irregular and delayed.
+  - t: 4
+    type: assumption_invalidated
+    content: |
+      NEW SYSTEM EVENT (P3 — Assumption Invalidated):
+      Game updated yesterday to v1.4.0 (asset pipeline refactor).
+      Graphics driver was updated 3 weeks ago with no recent changes.
+      GPU temperature is 62°C (normal, throttling threshold is 84°C).
+  - t: 5
+    type: constraint_added
+    content: |
+      NEW DIAGNOSTIC REQUIREMENT (P1 — Constraint Added):
+      The final diagnosis submission must explicitly cite asset-streaming or game-thread evidence,
+      and explicitly rule out thermal throttling and GPU hardware bottleneck in rejected_alternatives.
+
+hidden_ground_truth:
+  primary_cause: asset_streaming_issue_after_game_update
+  primary_cause_aliases:
+    - asset_streaming_issue_after_game_update
+    - asset_streaming_regression_after_game_update
+    - asset_streaming_problem_after_game_update
+    - asset_streaming_failure_after_game_update
+  contributing_factors:
+    - recent_game_update_v1.4.0
+    - game_thread_blocked_on_asset_buffer
+  ruled_out_causes:
+    - gpu_hardware_bottleneck
+    - thermal_throttling
+    - driver_regression
+  required_evidence_keywords:
+    - asset_streaming
+    - game_update
+    - game_thread
+
+acceptance_predicate: |
+  primary_cause == "asset_streaming_issue_after_game_update" AND
+  required_evidence_present == True AND
+  ruled_out_causes_checked == True AND
+  all_perturbations_survived == True
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      hypotheses: ["GPU hardware bottleneck (due to 97% utilization)"]
+      assumptions: ["High GPU utilization indicates GPU limit"]
+  - step: 2
+    sigma:
+      hypotheses: ["CPU game-thread bottleneck / asset stall", "GPU hardware bottleneck"]
+      assumptions: ["GPU utilization is high because game thread is stalling submissions"]
+  - step: 4
+    sigma:
+      hypotheses: ["Asset streaming issue after game update v1.4.0"]
+      assumptions: ["GPU thermal throttling ruled out (62°C)", "Driver regression ruled out"]
