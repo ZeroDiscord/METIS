@@ -15,12 +15,22 @@ from langchain_groq import ChatGroq
 load_dotenv()
 
 def get_llm():
-    return ChatGroq(
-        model="openai/gpt-oss-20b",
-        api_key=os.getenv("GROQ_API_KEY"),
-        temperature=0,
-        max_retries=20,
-    )
+    google_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+    if google_key:
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        return ChatGoogleGenerativeAI(
+            model="gemini-1.5-flash",
+            google_api_key=google_key,
+            temperature=0,
+        )
+    else:
+        return ChatGroq(
+            model="openai/gpt-oss-20b",
+            api_key=os.getenv("GROQ_API_KEY"),
+            temperature=0,
+            max_retries=20,
+        )
+
 
 
 HEADERS = [

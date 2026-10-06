@@ -60,13 +60,23 @@ class ArmBState(TypedDict):
 
 
 def get_llm():
-    llm = ChatGroq(
-        model="openai/gpt-oss-20b",
-        api_key=os.getenv("GROQ_API_KEY"),
-        temperature=0,
-        max_retries=20,
-    )
+    google_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+    if google_key:
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        llm = ChatGoogleGenerativeAI(
+            model="gemini-1.5-flash",
+            google_api_key=google_key,
+            temperature=0,
+        )
+    else:
+        llm = ChatGroq(
+            model="openai/gpt-oss-20b",
+            api_key=os.getenv("GROQ_API_KEY"),
+            temperature=0,
+            max_retries=20,
+        )
     return llm.bind_tools(ALL_TOOLS)
+
 
 
 
