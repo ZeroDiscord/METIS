@@ -103,7 +103,17 @@ UNCERTAINTIES:
 """
 
     llm = get_llm()
-    response = llm.invoke(prompt)
+    for attempt in range(10):
+        try:
+            response = llm.invoke(prompt)
+            break
+        except Exception as exc:
+            if "429" in str(exc) or "rate_limit" in str(exc).lower():
+                print(f"  [RATE LIMIT 429] Groq daily token limit reached. Retrying in 65s (attempt {attempt+1}/10)...")
+                time.sleep(65)
+            else:
+                raise exc
+
     content = str(response.content)
 
     print("\n" + "="*70)
