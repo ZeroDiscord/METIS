@@ -2,7 +2,7 @@
 
 **Domain:** Biomedical Genetic Variant Classification Under Evolving Evidence (ACMG/AMP Standards)  
 **Category:** Clinical Genomics / Diagnostics  
-**Owner:** AIML Specialization Team  
+**Owner:** Satwik Shukla  
 **Standard Version:** CSS v1.0 (Phase 2 Problem Setting Selection)  
 **Status:** Completed & Validated (Full Empirical Benchmark: 72 Runs)  
 **Date:** October 6, 2026  

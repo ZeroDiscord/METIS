@@ -2,7 +2,7 @@
 
 **Domain:** Cybersecurity Incident Response & Threat Attribution Under Evolving Indicators of Compromise (IOCs)  
 **Category:** Diagnostics / Security  
-**Owner:** Antigravity AI (on behalf of METIS Research Team)  
+**Owner:** Satwik Shukla  
 **Standard Version:** CSS v1.0 (Phase 2 Problem Setting Selection)  
 **Status:** Completed & Validated (Full Empirical Benchmark: 72 Runs)  
 **Date:** October 6, 2026  
