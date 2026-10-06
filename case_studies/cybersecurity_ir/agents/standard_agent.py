@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from agents.tools import IRToolkit
 from agents.state import compute_revision_distance
+from agents.llm_client import LLMClient
 from verifier.verifier import CyberIRVerifier, VerifierReport
 
 
@@ -61,6 +62,8 @@ class StandardAgent:
         max_steps: int = 50,
         max_tokens: int = 100_000,
         api_key: str | None = None,
+        base_url: str | None = None,
+        mode: str = "simulated",
         seed: int = 42,
     ):
         self.toolkit = toolkit
@@ -70,7 +73,19 @@ class StandardAgent:
         self.max_steps = max_steps
         self.max_tokens = max_tokens
         self.api_key = api_key or os.getenv("OPENAI_API_KEY", "")
+        self.base_url = base_url or os.getenv("OPENAI_BASE_URL", None)
+        self.mode = mode
         self.seed = seed
+
+        # Live LLM client if requested
+        self.llm_client = None
+        if self.mode == "live":
+            self.llm_client = LLMClient(
+                model=self.model,
+                temperature=self.temperature,
+                api_key=self.api_key,
+                base_url=self.base_url,
+            )
 
         # Logging
         self.llm_calls = 0
@@ -200,11 +215,91 @@ class StandardAgent:
         Autoregressive replanning re-reads the full context every step.
         """
         self.llm_calls += 1
+
+        if self.mode == "live" and self.llm_client:
+            return self._live_assessment(all_evidence, constraints, t)
+
         # Token count grows with accumulating prompt history
         self.total_tokens += 1800 + (t * 450)
-
         response = self._simulated_assessment(all_evidence, constraints, t)
         return response
+
+    def _live_assessment(
+        self,
+        evidence: list[str],
+        constraints: list[dict],
+        t: int,
+    ) -> dict:
+        """
+        Query live LLM with full accumulating evidence and constraints.
+        Arm A replans from scratch every step.
+        """
+        user_prompt = f"EVIDENCE LOG (Accumulated through step t={t}):\n"
+        for i, ev in enumerate(evidence):
+            user_prompt += f"[{i+1}] {ev}\n"
+
+        user_prompt += "\nACTIVE CONSTRAINTS:\n"
+        for c in constraints:
+            cid = c.get("id", "")
+            ctext = c.get("text", "")
+            hard = c.get("hard", True)
+            user_prompt += f"- [{cid}] {'(HARD)' if hard else '(SOFT)'} {ctext}\n"
+
+        user_prompt += """
+Please analyze all available evidence from scratch. Reconstruct the attack sequence and provide your assessment in JSON format:
+{
+    "attributed_group": "MITRE Threat Actor Group ID (e.g., G0096, G0007, G0016, G0046, G0032, G0018, INSIDER)",
+    "kill_chain": ["T1190", "T1059.001", ...],
+    "compromised_hosts": ["HOST-1", "HOST-2", ...],
+    "plan_actions": [
+        {"id": "act-1", "action": "isolate_host", "target": "HOST-1", "category": "contain", "estimated_hours": 2}
+    ],
+    "confidence": 0.85,
+    "reasoning": "Detailed forensic explanation of findings"
+}
+
+Requirements:
+- The kill_chain must follow chronological MITRE ATT&CK progression (Initial Access -> Execution -> Persistence/Privilege Escalation -> Defense Evasion -> Credential Access -> Discovery -> Lateral Movement -> Collection -> C2 -> Exfiltration/Impact).
+- All specified hard constraints MUST be satisfied.
+"""
+        parsed, usage = self.llm_client.query(
+            system_prompt=SYSTEM_PROMPT,
+            user_prompt=user_prompt,
+        )
+
+        self.total_tokens += usage.get("total_tokens", 0)
+
+        chain = parsed.get("kill_chain", [])
+        hosts = parsed.get("compromised_hosts", [])
+        plan = parsed.get("plan_actions", [])
+
+        # Ensure evidence map
+        evidence_map = parsed.get("evidence_map") or {tech: [f"ev-{tech}"] for tech in chain}
+
+        # Build fallback plan if missing
+        if not plan:
+            plan = []
+            for h in hosts:
+                plan.append({
+                    "id": f"act-live-{t}-{h}",
+                    "action": f"isolate_{h}",
+                    "target": h,
+                    "category": "contain",
+                    "estimated_hours": 1,
+                })
+
+        return {
+            "attributed_group": parsed.get("attributed_group", "UNKNOWN"),
+            "kill_chain": chain,
+            "compromised_hosts": hosts,
+            "iocs": parsed.get("iocs", []),
+            "plan_actions": plan,
+            "evidence_map": evidence_map,
+            "explained_evidence": parsed.get("explained_evidence", [f"ev-{i}" for i in range(len(evidence))]),
+            "confidence": float(parsed.get("confidence", 0.6)),
+            "reasoning": parsed.get("reasoning", f"Live LLM assessment at t={t}"),
+            "llm_metadata": usage,
+        }
 
     def _simulated_assessment(
         self,

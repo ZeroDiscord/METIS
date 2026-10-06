@@ -101,13 +101,23 @@ class InterpretiveState:
 
     @classmethod
     def from_dict(cls, data: dict) -> InterpretiveState:
+        import dataclasses
+
+        def _clean(dataclass_cls, items):
+            valid = {f.name for f in dataclasses.fields(dataclass_cls)}
+            res = []
+            for item in items:
+                if isinstance(item, dict):
+                    res.append(dataclass_cls(**{k: v for k, v in item.items() if k in valid}))
+            return res
+
         state = cls()
-        state.goals = [Goal(**g) for g in data.get("goals", [])]
-        state.beliefs = [Belief(**b) for b in data.get("beliefs", [])]
-        state.assumptions = [Assumption(**a) for a in data.get("assumptions", [])]
-        state.constraints = [Constraint(**c) for c in data.get("constraints", [])]
-        state.hypotheses = [Hypothesis(**h) for h in data.get("hypotheses", [])]
-        state.plan = [PlanAction(**p) for p in data.get("plan", [])]
+        state.goals = _clean(Goal, data.get("goals", []))
+        state.beliefs = _clean(Belief, data.get("beliefs", []))
+        state.assumptions = _clean(Assumption, data.get("assumptions", []))
+        state.constraints = _clean(Constraint, data.get("constraints", []))
+        state.hypotheses = _clean(Hypothesis, data.get("hypotheses", []))
+        state.plan = _clean(PlanAction, data.get("plan", []))
         return state
 
     @classmethod

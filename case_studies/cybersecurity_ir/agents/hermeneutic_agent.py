@@ -29,6 +29,7 @@ from agents.state import (
     Hypothesis, PlanAction, compute_revision_distance,
 )
 from agents.tools import IRToolkit
+from agents.llm_client import LLMClient
 from verifier.verifier import CyberIRVerifier, VerifierReport
 from data.attck_knowledge_base import GROUPS, TECHNIQUES, TACTIC_INDEX, validate_kill_chain_order
 
@@ -70,6 +71,8 @@ class HermeneuticAgent:
         max_steps: int = 50,
         max_tokens: int = 100_000,
         api_key: str | None = None,
+        base_url: str | None = None,
+        mode: str = "simulated",
         seed: int = 42,
     ):
         self.toolkit = toolkit
@@ -79,7 +82,19 @@ class HermeneuticAgent:
         self.max_steps = max_steps
         self.max_tokens = max_tokens
         self.api_key = api_key or os.getenv("OPENAI_API_KEY", "")
+        self.base_url = base_url or os.getenv("OPENAI_BASE_URL", None)
+        self.mode = mode
         self.seed = seed
+
+        # Live LLM client if requested
+        self.llm_client = None
+        if self.mode == "live":
+            self.llm_client = LLMClient(
+                model=self.model,
+                temperature=self.temperature,
+                api_key=self.api_key,
+                base_url=self.base_url,
+            )
 
         # The interpretive state (persists across perturbations)
         self.sigma: InterpretiveState = InterpretiveState()
@@ -224,8 +239,84 @@ class HermeneuticAgent:
     ):
         """Build the initial interpretive state from evidence and constraints."""
         self.llm_calls += 1
-        self.total_tokens += 1500
 
+        if self.mode == "live" and self.llm_client:
+            return self._live_initialize_sigma(evidence, constraints)
+
+        self.total_tokens += 1500
+        self._simulated_initialize_sigma(evidence, constraints)
+
+    def _live_initialize_sigma(
+        self,
+        evidence: list[str],
+        constraints: list[dict],
+    ):
+        user_prompt = "INITIAL INCIDENT EVIDENCE:\n"
+        for i, ev in enumerate(evidence):
+            user_prompt += f"[{i+1}] {ev}\n"
+
+        user_prompt += "\nINITIAL CONSTRAINTS:\n"
+        for c in constraints:
+            cid = c.get("id", "")
+            ctext = c.get("text", "")
+            hard = c.get("hard", True)
+            user_prompt += f"- [{cid}] {'(HARD)' if hard else '(SOFT)'} {ctext}\n"
+
+        user_prompt += """
+Initialize the incident response investigation by creating the initial explicit 6-coordinate interpretive state σ = ⟨ γ, β, α, κ, H, π ⟩:
+Return a JSON object:
+{
+    "sigma": {
+        "goals": [
+            {"id": "G1", "description": "Identify threat actor", "priority": 1, "status": "active"},
+            {"id": "G2", "description": "Determine scope of compromise", "priority": 2, "status": "active"},
+            {"id": "G3", "description": "Reconstruct kill chain", "priority": 3, "status": "active"},
+            {"id": "G4", "description": "Recommend containment actions", "priority": 4, "status": "active"}
+        ],
+        "beliefs": [
+            {"id": "B1", "category": "initial_access", "distribution": {"T1190": 0.7, "T1566.001": 0.3}}
+        ],
+        "assumptions": [
+            {"id": "A1", "text": "Telemetry feeds are authentic", "status": "active"}
+        ],
+        "constraints": [
+            {"id": "K1", "text": "...", "hard": true, "status": "active"}
+        ],
+        "hypotheses": [
+            {
+                "id": "H1",
+                "actor": "MITRE Threat Actor Group ID (e.g., G0096, G0007, G0016, G0046, G0032, G0018)",
+                "kill_chain": ["T1190", "T1059.001", ...],
+                "compromised_hosts": ["HOST-1", ...],
+                "confidence": 0.8,
+                "status": "active"
+            }
+        ],
+        "plan": [
+            {"id": "P1", "action": "isolate_host", "target": "HOST-1", "category": "contain", "status": "planned"}
+        ]
+    }
+}
+Requirements:
+- The leading hypothesis (H1) kill chain must follow chronological ATT&CK order.
+- Hard constraints must be satisfied.
+"""
+        parsed, usage = self.llm_client.query(
+            system_prompt=SYSTEM_PROMPT_HERM,
+            user_prompt=user_prompt,
+        )
+        self.total_tokens += usage.get("total_tokens", 0)
+
+        raw_sigma = parsed.get("sigma", parsed)
+        self.sigma = InterpretiveState.from_dict(raw_sigma)
+        if not self.sigma.hypotheses:
+            self._simulated_initialize_sigma(evidence, constraints)
+
+    def _simulated_initialize_sigma(
+        self,
+        evidence: list[str],
+        constraints: list[dict],
+    ):
         signals = self._parse_evidence(evidence)
 
         # ── Goals (γ) ────────────────────────────────────────────────────
@@ -332,6 +423,10 @@ class HermeneuticAgent:
         Preserves valid work that does not depend on invalidated components.
         """
         self.llm_calls += 1
+
+        if self.mode == "live" and self.llm_client:
+            return self._live_revise_sigma(perturbation, all_evidence, all_constraints)
+
         self.total_tokens += 1200  # Targeted update uses fewer tokens than full replan
 
         p_type = perturbation.get("type", "unknown")
@@ -347,6 +442,57 @@ class HermeneuticAgent:
         else:
             self._handle_generic_perturbation(perturbation, all_evidence)
 
+        self.state_update_count += 1
+
+    def _live_revise_sigma(
+        self,
+        perturbation: dict,
+        all_evidence: list[str],
+        all_constraints: list[dict],
+    ):
+        p_type = perturbation.get("type", "unknown")
+        p_content = perturbation.get("content", "")
+
+        user_prompt = f"""NEW PERTURBATION RECEIVED:
+Type: {p_type}
+Content: {p_content}
+
+CURRENT INTERPRETIVE STATE σ:
+{self.sigma.to_json(indent=2)}
+
+ACTIVE CONSTRAINTS:
+{json.dumps(all_constraints, indent=2)}
+
+METIS CHAMBER INSTRUCTIONS:
+1. Examine which specific coordinates in σ are affected by this perturbation.
+2. Perform MINIMAL TARGETED REPAIR:
+   - If a new constraint is added, revise ONLY the violating plan actions.
+   - If an assumption is refuted, withdraw it and adjust hypotheses.
+   - If new hosts/dependencies are discovered, append them to compromised_hosts and plan.
+   - PRESERVE all unaffected goals, beliefs, hypotheses, and plan actions.
+3. Return the REVISED σ in JSON format:
+{{
+    "revised_sigma": {{
+        "goals": [...],
+        "beliefs": [...],
+        "assumptions": [...],
+        "constraints": [...],
+        "hypotheses": [...],
+        "plan": [...]
+    }},
+    "repair_rationale": "Explanation of minimal targeted repairs"
+}}
+"""
+        parsed, usage = self.llm_client.query(
+            system_prompt=SYSTEM_PROMPT_HERM,
+            user_prompt=user_prompt,
+        )
+        self.total_tokens += usage.get("total_tokens", 0)
+
+        raw_sigma = parsed.get("revised_sigma", parsed.get("sigma", parsed))
+        revised_state = InterpretiveState.from_dict(raw_sigma)
+        if revised_state.hypotheses:
+            self.sigma = revised_state
         self.state_update_count += 1
 
     def _handle_constraint_added(self, perturbation: dict):

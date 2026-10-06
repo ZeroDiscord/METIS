@@ -15,6 +15,17 @@ venv/
 # Large Datasets (>50MB, auto-downloaded on first run)
 case_studies/*/data/enterprise-attack.json
 
+# Secrets & Credentials
+.env
+*.env
+.env.*
+
+# Local archives & scratch files
+*.zip
+*.pptx
+scratch/
+case_studies/*/scratch/
+
 # IDE / OS metadata
 .DS_Store
 Thumbs.db

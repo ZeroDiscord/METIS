@@ -24,6 +24,12 @@ import csv
 import yaml
 from pathlib import Path
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 sys.path.insert(0, os.path.dirname(__file__))
 
 from agents.tools import IRToolkit
@@ -45,13 +51,32 @@ def compute_f1(pred_set: set, gt_set: set) -> tuple[float, float, float]:
     return round(precision, 4), round(recall, 4), round(f1, 4)
 
 
-def run_experiment(instances_dir: str = "instances", runs_dir: str = "runs", results_csv: str = "results.csv"):
+def run_experiment(
+    instances_dir: str = "instances",
+    runs_dir: str = "runs",
+    results_csv: str = "results.csv",
+    mode: str = "simulated",
+    model: str = "gpt-4o",
+    api_key: str | None = None,
+    base_url: str | None = None,
+    instances: list[str] | None = None,
+    arms: list[str] | None = None,
+    seeds: list[int] | None = None,
+):
     os.makedirs(runs_dir, exist_ok=True)
     verifier = CyberIRVerifier()
-    instance_files = sorted(glob.glob(os.path.join(instances_dir, "cyber-*.yaml")))
+    all_instance_files = sorted(glob.glob(os.path.join(instances_dir, "cyber-*.yaml")))
 
-    seeds = [42, 123, 999]
-    arms = ["arm_a", "arm_b"]
+    if instances:
+        instance_files = [
+            f for f in all_instance_files
+            if any(target in os.path.basename(f) for target in instances)
+        ]
+    else:
+        instance_files = all_instance_files
+
+    seeds = seeds or [42, 123, 999]
+    arms = arms or ["arm_a", "arm_b"]
 
     fieldnames = [
         "instance_id", "difficulty", "arm", "seed",
@@ -68,7 +93,8 @@ def run_experiment(instances_dir: str = "instances", runs_dir: str = "runs", res
 
     all_rows = []
 
-    print(f"Starting METIS benchmark: {len(instance_files)} instances x {len(arms)} arms x {len(seeds)} seeds = {len(instance_files) * len(arms) * len(seeds)} runs.")
+    print(f"Starting METIS benchmark [Mode: {mode.upper()} | Model: {model}]:")
+    print(f"{len(instance_files)} instances x {len(arms)} arms x {len(seeds)} seeds = {len(instance_files) * len(arms) * len(seeds)} runs.")
     print("-" * 100)
 
     for inst_idx, fpath in enumerate(instance_files, 1):
@@ -91,7 +117,15 @@ def run_experiment(instances_dir: str = "instances", runs_dir: str = "runs", res
                 t_start = time.perf_counter()
 
                 if arm_name == "arm_a":
-                    agent = StandardAgent(toolkit=tools, verifier=verifier, seed=seed)
+                    agent = StandardAgent(
+                        toolkit=tools,
+                        verifier=verifier,
+                        seed=seed,
+                        mode=mode,
+                        model=model,
+                        api_key=api_key,
+                        base_url=base_url,
+                    )
                     res = agent.run(
                         initial_evidence=inst["initial_spec"]["prior_evidence"],
                         constraints=inst["initial_spec"]["constraints"],
@@ -99,7 +133,15 @@ def run_experiment(instances_dir: str = "instances", runs_dir: str = "runs", res
                         ground_truth=gt,
                     )
                 else:
-                    agent = HermeneuticAgent(toolkit=tools, verifier=verifier, seed=seed)
+                    agent = HermeneuticAgent(
+                        toolkit=tools,
+                        verifier=verifier,
+                        seed=seed,
+                        mode=mode,
+                        model=model,
+                        api_key=api_key,
+                        base_url=base_url,
+                    )
                     res = agent.run(
                         initial_evidence=inst["initial_spec"]["prior_evidence"],
                         constraints=inst["initial_spec"]["constraints"],
@@ -275,4 +317,27 @@ def run_experiment(instances_dir: str = "instances", runs_dir: str = "runs", res
 
 
 if __name__ == "__main__":
-    run_experiment()
+    import argparse
+    parser = argparse.ArgumentParser(description="METIS Cybersecurity IR Benchmark Runner")
+    parser.add_argument("--mode", choices=["simulated", "live"], default="simulated", help="Execution mode: simulated (default) or live LLM inference")
+    parser.add_argument("--model", type=str, default="gpt-4o", help="Model name for live mode (e.g. gpt-4o, claude-3-5-sonnet-20241022, gemini-1.5-pro)")
+    parser.add_argument("--api-key", type=str, default=None, help="API key (defaults to OPENAI_API_KEY / ANTHROPIC_API_KEY / GEMINI_API_KEY env vars)")
+    parser.add_argument("--base-url", type=str, default=None, help="Base URL for local/custom OpenAI-compatible endpoint")
+    parser.add_argument("--instances", type=str, default=None, help="Comma-separated instance IDs to run (e.g. cyber-001 or cyber-001,cyber-002)")
+    parser.add_argument("--arms", type=str, default="arm_a,arm_b", help="Comma-separated arms to run (e.g. arm_a,arm_b)")
+    parser.add_argument("--seeds", type=str, default="42,123,999", help="Comma-separated random seeds (e.g. 42 or 42,123,999)")
+    args = parser.parse_args()
+
+    inst_list = [x.strip() for x in args.instances.split(",")] if args.instances else None
+    arms_list = [x.strip() for x in args.arms.split(",")]
+    seeds_list = [int(x.strip()) for x in args.seeds.split(",")]
+
+    run_experiment(
+        mode=args.mode,
+        model=args.model,
+        api_key=args.api_key,
+        base_url=args.base_url,
+        instances=inst_list,
+        arms=arms_list,
+        seeds=seeds_list,
+    )
