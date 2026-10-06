@@ -1,0 +1,72 @@
+instance_id: cyber-004
+domain: cybersecurity_ir
+difficulty: easy
+title: "Insider Data Exfiltration \u2014 Cloud Upload"
+initial_spec:
+  goal: Identify threat actor, determine scope, reconstruct kill chain, recommend
+    containment
+  constraints:
+  - id: K1
+    text: "Handle with HR sensitivity \u2014 do not alert the suspected insider"
+    type: no_alert_attacker
+    hard: true
+  - id: K2
+    text: Preserve forensic evidence
+    type: evidence_preservation
+    hard: true
+  prior_evidence:
+  - 'DLP alert: user ''mwilson'' uploaded 3.2GB of files to personal Google Drive
+    from WORKSTATION-33'
+  - 'Files include: quarterly_financials.xlsx, customer_list_2024.csv, product_roadmap.pptx'
+  - 'HR report: mwilson submitted resignation letter 2 weeks ago, last day is in 5
+    business days'
+  - 'Access logs: mwilson accessed 14 SharePoint folders outside normal job scope
+    in the last 3 days'
+evidence_schedule:
+- t: 1
+  type: constraint_added
+  content: 'Legal team requires: all evidence must meet e-discovery standards for
+    potential civil litigation'
+  constraint:
+    id: K3
+    text: Evidence must meet e-discovery standards
+    type: evidence_preservation
+    hard: true
+- t: 2
+  type: dependency_revealed
+  content: IT audit reveals mwilson also has admin access to the CRM system (SALESFORCE-PROD)
+    and downloaded the full customer contact database yesterday.
+  new_hosts:
+  - SALESFORCE-PROD
+- t: 3
+  type: assumption_invalidated
+  content: "Investigation reveals mwilson's account credentials were also used from\
+    \ an external IP at 2AM \u2014 mwilson claims they were asleep. Possible credential\
+    \ theft, not purely insider action."
+  invalidated_assumption: A1
+- t: 4
+  type: setting_changed
+  content: HR accelerated mwilson's departure to immediate termination. Account will
+    be disabled in 2 hours.
+ground_truth:
+  threat_actor_group: INSIDER
+  initial_access: T1078
+  techniques:
+  - T1078
+  - T1005
+  - T1039
+  - T1567.002
+  compromised_hosts:
+  - WORKSTATION-33
+  - SALESFORCE-PROD
+  exfiltration_target: Financial documents, customer data, product roadmap
+tool_outputs:
+  logs_proxy_WORKSTATION-33_google_drive:
+    entries:
+    - timestamp: '2024-04-01T17:30:00Z'
+      user: mwilson
+      action: upload
+      destination: drive.google.com
+      size_bytes: 3355443200
+    total_count: 1
+    summary: 1 large upload to Google Drive

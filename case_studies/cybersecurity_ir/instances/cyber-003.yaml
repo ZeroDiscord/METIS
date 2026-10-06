@@ -1,0 +1,78 @@
+instance_id: cyber-003
+domain: cybersecurity_ir
+difficulty: easy
+title: "Known CVE Exploit \u2014 Web Shell Persistence"
+initial_spec:
+  goal: Identify threat actor, determine scope, reconstruct kill chain, recommend
+    containment
+  constraints:
+  - id: K1
+    text: The e-commerce platform must remain operational
+    type: system_availability
+    hard: true
+    protected_system: ECOM-SERVER-01
+  - id: K2
+    text: Preserve forensic evidence
+    type: evidence_preservation
+    hard: true
+  prior_evidence:
+  - 'IDS alert: Exploitation attempt against CVE-2024-1234 on ECOM-SERVER-01 (Apache
+    Struts RCE)'
+  - "Web server logs: POST request to /uploads/cmd.jsp from 192.0.2.100 \u2014 web\
+    \ shell deployment detected"
+  - 'File integrity: new file /var/www/uploads/cmd.jsp created at 2024-03-05T03:22:00Z'
+  - "Network flow: ECOM-SERVER-01 \u2192 192.0.2.100:8443 (reverse shell callback)"
+evidence_schedule:
+- t: 1
+  type: constraint_added
+  content: 'Legal counsel requires: any evidence of customer data access must be reported
+    to regulatory authorities within 72 hours'
+  constraint:
+    id: K3
+    text: Customer data breach must be reported within 72 hours
+    type: generic
+    hard: true
+- t: 2
+  type: dependency_revealed
+  content: Database connection strings found in web shell history show ECOM-SERVER-01
+    connects to DB-SERVER-01 with read-write access to the customer database.
+  new_hosts:
+  - DB-SERVER-01
+- t: 3
+  type: assumption_invalidated
+  content: Assumption that the web shell was the only persistence mechanism is incorrect.
+    Memory forensics reveals a kernel-level rootkit was also installed, hiding additional
+    processes.
+  invalidated_assumption: A2
+- t: 4
+  type: setting_changed
+  content: Emergency patch applied to ECOM-SERVER-01 for CVE-2024-1234. The original
+    exploit vector is now closed, but the web shell and rootkit remain.
+ground_truth:
+  threat_actor_group: G0096
+  initial_access: T1190
+  techniques:
+  - T1190
+  - T1505.003
+  - T1059.003
+  - T1068
+  - T1005
+  - T1071.001
+  - T1041
+  compromised_hosts:
+  - ECOM-SERVER-01
+  - DB-SERVER-01
+  exfiltration_target: Customer PII from e-commerce database
+tool_outputs:
+  sigma_matches_sysmon_ECOM-SERVER-01:
+    matches:
+    - rule: Web Shell Detection
+      sid: 5200
+      severity: critical
+      technique: T1505.003
+    - rule: Suspicious cmd.exe Spawned by Web Server
+      sid: 5201
+      severity: high
+      technique: T1059.003
+    total_rules_checked: 150
+    total_matches: 2

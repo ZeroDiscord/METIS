@@ -1,0 +1,175 @@
+instance_id: cyber-005
+domain: cybersecurity_ir
+difficulty: misleading
+title: "False Flag Attribution \u2014 Russian IPs Masking Chinese APT"
+initial_spec:
+  goal: Identify threat actor, determine scope, reconstruct kill chain, recommend
+    containment
+  constraints:
+  - id: K1
+    text: Do not disrupt the customer-facing web portal
+    type: system_availability
+    hard: true
+    protected_system: WEB-PORTAL-01
+  - id: K2
+    text: Preserve forensic evidence chain-of-custody
+    type: evidence_preservation
+    hard: true
+  - id: K3
+    text: Complete initial assessment within 48 hours
+    type: time_constraint
+    hard: false
+    max_hours: 48
+  prior_evidence:
+  - "IDS alert: Suricata rule SID:2024001 triggered \u2014 known Russian C2 callback\
+    \ pattern from WORKSTATION-07"
+  - 'Network flows: 3 internal hosts communicating with 185.220.101.x (Tor exit node,
+    geolocated to Russia)'
+  - 'IOC lookup: malware hash abc123def456 matches VirusTotal entry tagged ''APT28/Fancy
+    Bear'' (community attribution)'
+  - "Sigma match: Suspicious PowerShell Encoded Command (SID:5001) on WORKSTATION-07\
+    \ \u2014 encoded Base64 command downloading second-stage payload"
+evidence_schedule:
+- t: 1
+  type: constraint_added
+  content: 'Legal team mandates: all forensic findings must be court-admissible. Chain
+    of custody standard elevated to federal level. No evidence may be altered without
+    prior forensic imaging.'
+  constraint:
+    id: K4
+    text: All forensic findings must be court-admissible at federal level
+    type: evidence_preservation
+    hard: true
+- t: 2
+  type: dependency_revealed
+  content: Network forensics reveals WORKSTATION-07 has a persistent VPN tunnel to
+    BACKUP-DC-01 via service account 'svc_backup'. BACKUP-DC-01 was not in initial
+    scope. If WORKSTATION-07 is compromised, BACKUP-DC-01 must be assumed compromised
+    too.
+  new_hosts:
+  - BACKUP-DC-01
+- t: 3
+  type: assumption_invalidated
+  content: "Deep malware analysis (sandbox + static) reveals: the malware binary contains Mandarin-language debug strings ('调试模式已启用', '连接服务器失败'), uses infrastructure previously attributed to APT41/Winnti/Wicked Panda (China, G0096), and the 'Russian' C2 IPs are actually rented proxy infrastructure from a bulletproof hosting provider. The VirusTotal 'APT28' tag was a community misattribution. Lateral movement logs confirm unauthorized access and data staging on FILE-SERVER-03 via VPN zero-day (T1190)."
+  invalidated_assumption: A3
+- t: 4
+  type: setting_changed
+  content: IT operations (uncoordinated with IR team) emergency-patched the VPN appliance,
+    closing CVE-2024-5678 that the attacker used for initial persistence. The attacker's
+    VPN-based persistence mechanism is now broken, but they may establish new persistence
+    via other means already deployed on compromised hosts.
+ground_truth:
+  threat_actor_group: G0096
+  initial_access: T1190
+  techniques:
+  - T1190
+  - T1059.001
+  - T1078.002
+  - T1005
+  - T1021.001
+  - T1071.001
+  - T1041
+  compromised_hosts:
+  - WORKSTATION-07
+  - BACKUP-DC-01
+  - FILE-SERVER-03
+  exfiltration_target: R&D source code repository
+tool_outputs:
+  network_flows_last_24h_None_185.220.101.x:
+    flows:
+    - src: 10.0.1.7
+      dst: 185.220.101.42
+      port: 443
+      protocol: TCP
+      bytes: 262144
+      timestamp: '2024-01-15T08:00:00Z'
+    - src: 10.0.1.7
+      dst: 185.220.101.42
+      port: 443
+      protocol: TCP
+      bytes: 524288
+      timestamp: '2024-01-15T14:30:00Z'
+    - src: 10.0.1.7
+      dst: 185.220.101.99
+      port: 8443
+      protocol: TCP
+      bytes: 131072
+      timestamp: '2024-01-15T16:00:00Z'
+    total_count: 3
+    summary: 3 HTTPS flows to Tor exit nodes (Russian geolocation)
+  ioc_lookup_hash_abc123def456:
+    found: true
+    type: hash
+    value: abc123def456
+    threat_score: 90
+    attributed_groups:
+    - G0007
+    tags:
+    - apt28
+    - fancy_bear
+    - x-agent
+    - trojan
+    first_seen: '2023-09-15'
+    last_seen: '2024-01-15'
+    related_iocs:
+    - type: ip
+      value: 185.220.101.42
+    - type: domain
+      value: update-service.ru
+  sigma_matches_sysmon_WORKSTATION-07:
+    matches:
+    - rule: Suspicious PowerShell Encoded Command
+      sid: 5001
+      severity: high
+      technique: T1059.001
+    - rule: Potential ShadowPad DLL Sideloading
+      sid: 5300
+      severity: critical
+      technique: T1574.002
+    total_rules_checked: 250
+    total_matches: 2
+  memory_forensics_WORKSTATION-07:
+    hostname: WORKSTATION-07
+    status: completed
+    processes:
+    - pid: 4521
+      name: svchost.exe
+      suspicious: true
+      note: Injected code detected, Chinese debug strings in memory
+    - pid: 7890
+      name: powershell.exe
+      suspicious: true
+      note: Encoded command execution
+    network_connections:
+    - pid: 4521
+      remote_ip: 185.220.101.42
+      port: 443
+      state: ESTABLISHED
+    artifacts:
+    - type: debug_strings
+      content: "\u8C03\u8BD5\u6A21\u5F0F\u5DF2\u542F\u7528 (Debug mode enabled)"
+      language: Mandarin
+    - type: mutex
+      value: Global\ShadowPad_v3.1
+  asset_status_BACKUP-DC-01:
+    hostname: BACKUP-DC-01
+    status: online
+    os: Windows Server 2022
+    open_ports:
+    - 53
+    - 88
+    - 135
+    - 389
+    - 445
+    - 636
+    - 3268
+    - 3389
+    running_services:
+    - dns
+    - kerberos
+    - ldap
+    - smb
+    - rdp
+    alerts:
+    - type: suspicious_auth
+      description: svc_backup authenticated from unexpected source

@@ -1,0 +1,127 @@
+instance_id: cyber-001
+domain: cybersecurity_ir
+difficulty: easy
+title: "Clear Phishing Campaign \u2014 Emotet Delivery"
+initial_spec:
+  goal: Identify threat actor, determine scope, reconstruct kill chain, recommend
+    containment
+  constraints:
+  - id: K1
+    text: Preserve forensic evidence chain-of-custody
+    type: evidence_preservation
+    hard: true
+  - id: K2
+    text: Complete initial assessment within 48 hours
+    type: time_constraint
+    hard: false
+    max_hours: 48
+  prior_evidence:
+  - 'Email gateway alert: spearphishing attachment detected from external sender to
+    user jdoe@corp.com'
+  - 'Endpoint detection: Emotet dropper executed on WORKSTATION-12, PowerShell encoded
+    command launched'
+  - "Network flow: WORKSTATION-12 \u2192 198.51.100.42:443 (known Emotet C2, confirmed\
+    \ by TI feed)"
+  - 'Sigma match: Suspicious PowerShell Encoded Command (SID:5001) on WORKSTATION-12'
+evidence_schedule:
+- t: 1
+  type: constraint_added
+  content: 'IT management requires: all remediation steps must be documented in the
+    ticketing system before execution'
+  constraint:
+    id: K3
+    text: All remediation must be pre-approved via ticket system
+    type: generic
+    hard: false
+- t: 2
+  type: dependency_revealed
+  content: Log analysis shows WORKSTATION-12 has a mapped network drive to FILE-SERVER-01.
+    Emotet modules scan for network shares for propagation.
+  new_hosts:
+  - FILE-SERVER-01
+- t: 3
+  type: assumption_invalidated
+  content: "Deeper malware analysis reveals: the Emotet sample is a newer variant\
+    \ not in current signatures. Previous assumption that 'all Emotet C2 IPs are known'\
+    \ is incorrect \u2014 there may be additional undiscovered C2 channels."
+  invalidated_assumption: A3
+- t: 4
+  type: setting_changed
+  content: IT ops deployed an emergency email gateway filter blocking all attachments
+    from external senders, reducing the phishing vector but potentially disrupting
+    legitimate business email.
+verifier: verifier/verifier.py
+ground_truth:
+  threat_actor_group: G0007
+  initial_access: T1566.001
+  techniques:
+  - T1566.001
+  - T1204.002
+  - T1059.001
+  - T1547.001
+  - T1071.001
+  - T1041
+  compromised_hosts:
+  - WORKSTATION-12
+  - FILE-SERVER-01
+  exfiltration_target: Financial documents on shared drive
+tool_outputs:
+  network_flows_last_24h_None_198.51.100.42:
+    flows:
+    - src: 10.0.1.12
+      dst: 198.51.100.42
+      port: 443
+      protocol: TCP
+      bytes: 524288
+      timestamp: '2024-01-15T09:15:00Z'
+    - src: 10.0.1.12
+      dst: 198.51.100.42
+      port: 443
+      protocol: TCP
+      bytes: 1048576
+      timestamp: '2024-01-15T14:30:00Z'
+    total_count: 2
+    summary: 2 HTTPS flows to known Emotet C2
+  ioc_lookup_ip_198.51.100.42:
+    found: true
+    type: ip
+    value: 198.51.100.42
+    threat_score: 95
+    attributed_groups:
+    - G0007
+    tags:
+    - emotet
+    - c2
+    - banking_trojan
+    first_seen: '2023-06-01'
+    last_seen: '2024-01-15'
+  sigma_matches_windows_security_WORKSTATION-12:
+    matches:
+    - rule: Suspicious PowerShell Encoded Command
+      sid: 5001
+      severity: high
+      technique: T1059.001
+    - rule: Registry Run Key Modification
+      sid: 5042
+      severity: medium
+      technique: T1547.001
+    total_rules_checked: 200
+    total_matches: 2
+  asset_status_WORKSTATION-12:
+    hostname: WORKSTATION-12
+    status: online
+    os: Windows 10 Enterprise
+    last_seen: '2024-01-15T16:00:00Z'
+    open_ports:
+    - 135
+    - 139
+    - 445
+    - 3389
+    running_services:
+    - svchost
+    - powershell
+    - explorer
+    - outlook
+    alerts:
+    - type: malware
+      description: Emotet dropper detected

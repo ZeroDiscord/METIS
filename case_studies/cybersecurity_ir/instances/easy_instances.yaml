@@ -1,0 +1,213 @@
+# EASY INSTANCES (4): Clear signals, mild perturbations
+# cyber-001 through cyber-004
+
+instance_001:
+  instance_id: cyber-001
+  domain: cybersecurity_ir
+  difficulty: easy
+  title: "Clear Phishing Campaign — Emotet Delivery"
+  initial_spec:
+    goal: "Identify threat actor, determine scope, reconstruct kill chain, recommend containment"
+    constraints:
+      - {id: K1, text: "Preserve forensic evidence chain-of-custody", type: evidence_preservation, hard: true}
+      - {id: K2, text: "Complete initial assessment within 48 hours", type: time_constraint, hard: false, max_hours: 48}
+    prior_evidence:
+      - "Email gateway alert: spearphishing attachment detected from external sender to user jdoe@corp.com"
+      - "Endpoint detection: Emotet dropper executed on WORKSTATION-12, PowerShell encoded command launched"
+      - "Network flow: WORKSTATION-12 → 198.51.100.42:443 (known Emotet C2, confirmed by TI feed)"
+      - "Sigma match: Suspicious PowerShell Encoded Command (SID:5001) on WORKSTATION-12"
+  evidence_schedule:
+    - t: 1
+      type: constraint_added
+      content: "IT management requires: all remediation steps must be documented in the ticketing system before execution"
+      constraint: {id: K3, text: "All remediation must be pre-approved via ticket system", type: generic, hard: false}
+    - t: 2
+      type: dependency_revealed
+      content: "Log analysis shows WORKSTATION-12 has a mapped network drive to FILE-SERVER-01. Emotet modules scan for network shares for propagation."
+      new_hosts: ["FILE-SERVER-01"]
+    - t: 3
+      type: assumption_invalidated
+      content: "Deeper malware analysis reveals: the Emotet sample is a newer variant not in current signatures. Previous assumption that 'all Emotet C2 IPs are known' is incorrect — there may be additional undiscovered C2 channels."
+      invalidated_assumption: A3
+    - t: 4
+      type: setting_changed
+      content: "IT ops deployed an emergency email gateway filter blocking all attachments from external senders, reducing the phishing vector but potentially disrupting legitimate business email."
+  verifier: verifier/verifier.py
+  ground_truth:
+    threat_actor_group: G0007
+    initial_access: T1566.001
+    techniques: [T1566.001, T1204.002, T1059.001, T1547.001, T1071.001, T1041]
+    compromised_hosts: [WORKSTATION-12, FILE-SERVER-01]
+    exfiltration_target: "Financial documents on shared drive"
+  tool_outputs:
+    network_flows_last_24h_None_198.51.100.42:
+      flows:
+        - {src: "10.0.1.12", dst: "198.51.100.42", port: 443, protocol: TCP, bytes: 524288, timestamp: "2024-01-15T09:15:00Z"}
+        - {src: "10.0.1.12", dst: "198.51.100.42", port: 443, protocol: TCP, bytes: 1048576, timestamp: "2024-01-15T14:30:00Z"}
+      total_count: 2
+      summary: "2 HTTPS flows to known Emotet C2"
+    ioc_lookup_ip_198.51.100.42:
+      found: true
+      type: ip
+      value: "198.51.100.42"
+      threat_score: 95
+      attributed_groups: [G0007]
+      tags: [emotet, c2, banking_trojan]
+      first_seen: "2023-06-01"
+      last_seen: "2024-01-15"
+    sigma_matches_windows_security_WORKSTATION-12:
+      matches:
+        - {rule: "Suspicious PowerShell Encoded Command", sid: 5001, severity: high, technique: T1059.001}
+        - {rule: "Registry Run Key Modification", sid: 5042, severity: medium, technique: T1547.001}
+      total_rules_checked: 200
+      total_matches: 2
+    asset_status_WORKSTATION-12:
+      hostname: WORKSTATION-12
+      status: online
+      os: "Windows 10 Enterprise"
+      last_seen: "2024-01-15T16:00:00Z"
+      open_ports: [135, 139, 445, 3389]
+      running_services: [svchost, powershell, explorer, outlook]
+      alerts: [{type: malware, description: "Emotet dropper detected"}]
+
+---
+instance_002:
+  instance_id: cyber-002
+  domain: cybersecurity_ir
+  difficulty: easy
+  title: "Brute Force RDP — Lateral Movement via Admin Shares"
+  initial_spec:
+    goal: "Identify threat actor, determine scope, reconstruct kill chain, recommend containment"
+    constraints:
+      - {id: K1, text: "Do not disrupt the customer-facing web portal on WEB-SERVER-01", type: system_availability, hard: true, protected_system: WEB-SERVER-01}
+      - {id: K2, text: "Preserve forensic evidence", type: evidence_preservation, hard: true}
+    prior_evidence:
+      - "Auth logs: 4,200 failed RDP login attempts against TERMINAL-SERVER-01 from 203.0.113.55 over 6 hours"
+      - "Auth log: successful RDP login to TERMINAL-SERVER-01 using account 'svc_backup' from 203.0.113.55"
+      - "Network flows: TERMINAL-SERVER-01 → DC-01 via SMB (port 445), large data transfer 2.1GB"
+      - "Sigma match: Brute Force Detection (SID:5100) on TERMINAL-SERVER-01"
+  evidence_schedule:
+    - t: 1
+      type: constraint_added
+      content: "CFO mandates: do not reset the svc_backup account password until backup jobs complete at midnight"
+      constraint: {id: K3, text: "Do not reset svc_backup password before midnight", type: time_constraint, hard: true}
+    - t: 2
+      type: dependency_revealed
+      content: "Discovery: svc_backup account has Domain Admin privileges (misconfiguration). Compromise of this account means full domain compromise."
+      new_hosts: [DC-01]
+    - t: 3
+      type: assumption_invalidated
+      content: "IP geolocation lookup of 203.0.113.55 reveals it belongs to a VPN exit node, not directly attributable. Previously assumed it was a specific eastern-European threat actor based on IP geolocation."
+      invalidated_assumption: A3
+    - t: 4
+      type: setting_changed
+      content: "Network team emergency-blocked all inbound RDP (port 3389) from external IPs at the perimeter firewall."
+  ground_truth:
+    threat_actor_group: G0007
+    initial_access: T1110.003
+    techniques: [T1110.003, T1078.002, T1021.002, T1003.001, T1039, T1041]
+    compromised_hosts: [TERMINAL-SERVER-01, DC-01]
+    exfiltration_target: "Active Directory database and backup archives"
+  tool_outputs:
+    network_flows_last_24h_203.0.113.55_None:
+      flows:
+        - {src: "203.0.113.55", dst: "10.0.2.10", port: 3389, protocol: TCP, bytes: 8192, timestamp: "2024-02-10T02:00:00Z", label: "brute_force"}
+      total_count: 4200
+      summary: "4200 RDP connection attempts, 1 successful"
+    asset_status_TERMINAL-SERVER-01:
+      hostname: TERMINAL-SERVER-01
+      status: online
+      os: "Windows Server 2019"
+      open_ports: [135, 139, 445, 3389]
+      alerts: [{type: brute_force, description: "Multiple failed RDP logins"}]
+
+---
+instance_003:
+  instance_id: cyber-003
+  domain: cybersecurity_ir
+  difficulty: easy
+  title: "Known CVE Exploit — Web Shell Persistence"
+  initial_spec:
+    goal: "Identify threat actor, determine scope, reconstruct kill chain, recommend containment"
+    constraints:
+      - {id: K1, text: "The e-commerce platform must remain operational", type: system_availability, hard: true, protected_system: ECOM-SERVER-01}
+      - {id: K2, text: "Preserve forensic evidence", type: evidence_preservation, hard: true}
+    prior_evidence:
+      - "IDS alert: Exploitation attempt against CVE-2024-1234 on ECOM-SERVER-01 (Apache Struts RCE)"
+      - "Web server logs: POST request to /uploads/cmd.jsp from 192.0.2.100 — web shell deployment detected"
+      - "File integrity: new file /var/www/uploads/cmd.jsp created at 2024-03-05T03:22:00Z"
+      - "Network flow: ECOM-SERVER-01 → 192.0.2.100:8443 (reverse shell callback)"
+  evidence_schedule:
+    - t: 1
+      type: constraint_added
+      content: "Legal counsel requires: any evidence of customer data access must be reported to regulatory authorities within 72 hours"
+      constraint: {id: K3, text: "Customer data breach must be reported within 72 hours", type: generic, hard: true}
+    - t: 2
+      type: dependency_revealed
+      content: "Database connection strings found in web shell history show ECOM-SERVER-01 connects to DB-SERVER-01 with read-write access to the customer database."
+      new_hosts: [DB-SERVER-01]
+    - t: 3
+      type: assumption_invalidated
+      content: "Assumption that the web shell was the only persistence mechanism is incorrect. Memory forensics reveals a kernel-level rootkit was also installed, hiding additional processes."
+      invalidated_assumption: A2
+    - t: 4
+      type: setting_changed
+      content: "Emergency patch applied to ECOM-SERVER-01 for CVE-2024-1234. The original exploit vector is now closed, but the web shell and rootkit remain."
+  ground_truth:
+    threat_actor_group: G0096
+    initial_access: T1190
+    techniques: [T1190, T1505.003, T1059.003, T1068, T1005, T1071.001, T1041]
+    compromised_hosts: [ECOM-SERVER-01, DB-SERVER-01]
+    exfiltration_target: "Customer PII from e-commerce database"
+  tool_outputs:
+    sigma_matches_sysmon_ECOM-SERVER-01:
+      matches:
+        - {rule: "Web Shell Detection", sid: 5200, severity: critical, technique: T1505.003}
+        - {rule: "Suspicious cmd.exe Spawned by Web Server", sid: 5201, severity: high, technique: T1059.003}
+      total_rules_checked: 150
+      total_matches: 2
+
+---
+instance_004:
+  instance_id: cyber-004
+  domain: cybersecurity_ir
+  difficulty: easy
+  title: "Insider Data Exfiltration — Cloud Upload"
+  initial_spec:
+    goal: "Identify threat actor, determine scope, reconstruct kill chain, recommend containment"
+    constraints:
+      - {id: K1, text: "Handle with HR sensitivity — do not alert the suspected insider", type: no_alert_attacker, hard: true}
+      - {id: K2, text: "Preserve forensic evidence", type: evidence_preservation, hard: true}
+    prior_evidence:
+      - "DLP alert: user 'mwilson' uploaded 3.2GB of files to personal Google Drive from WORKSTATION-33"
+      - "Files include: quarterly_financials.xlsx, customer_list_2024.csv, product_roadmap.pptx"
+      - "HR report: mwilson submitted resignation letter 2 weeks ago, last day is in 5 business days"
+      - "Access logs: mwilson accessed 14 SharePoint folders outside normal job scope in the last 3 days"
+  evidence_schedule:
+    - t: 1
+      type: constraint_added
+      content: "Legal team requires: all evidence must meet e-discovery standards for potential civil litigation"
+      constraint: {id: K3, text: "Evidence must meet e-discovery standards", type: evidence_preservation, hard: true}
+    - t: 2
+      type: dependency_revealed
+      content: "IT audit reveals mwilson also has admin access to the CRM system (SALESFORCE-PROD) and downloaded the full customer contact database yesterday."
+      new_hosts: [SALESFORCE-PROD]
+    - t: 3
+      type: assumption_invalidated
+      content: "Investigation reveals mwilson's account credentials were also used from an external IP at 2AM — mwilson claims they were asleep. Possible credential theft, not purely insider action."
+      invalidated_assumption: A1
+    - t: 4
+      type: setting_changed
+      content: "HR accelerated mwilson's departure to immediate termination. Account will be disabled in 2 hours."
+  ground_truth:
+    threat_actor_group: INSIDER
+    initial_access: T1078
+    techniques: [T1078, T1005, T1039, T1567.002]
+    compromised_hosts: [WORKSTATION-33, SALESFORCE-PROD]
+    exfiltration_target: "Financial documents, customer data, product roadmap"
+  tool_outputs:
+    logs_proxy_WORKSTATION-33_google_drive:
+      entries:
+        - {timestamp: "2024-04-01T17:30:00Z", user: mwilson, action: upload, destination: "drive.google.com", size_bytes: 3355443200}
+      total_count: 1
+      summary: "1 large upload to Google Drive"

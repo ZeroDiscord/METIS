@@ -1,0 +1,71 @@
+instance_id: cyber-011
+domain: cybersecurity_ir
+difficulty: conflicting
+title: "Insider Plus External \u2014 Collusion or Coincidence?"
+initial_spec:
+  goal: Identify threat actor(s), determine scope, reconstruct kill chain, recommend
+    containment
+  constraints:
+  - id: K1
+    text: "Active investigation \u2014 do not alert any suspects"
+    type: no_alert_attacker
+    hard: true
+  - id: K2
+    text: Preserve forensic evidence for law enforcement
+    type: evidence_preservation
+    hard: true
+  prior_evidence:
+  - 'SOC alert: data exfiltration from ENGINEERING-NAS-01 to external IP 198.51.100.75
+    via FTP'
+  - "The FTP connection uses valid credentials for engineer 'schen' \u2014 but schen\
+    \ is currently on approved vacation"
+  - VPN logs show schen's account logging in from a residential IP in another country
+  - However, schen's badge was used to access the server room physically 2 days before
+    vacation started
+evidence_schedule:
+- t: 1
+  type: constraint_added
+  content: 'Legal counsel advises: if evidence of criminal activity is found, immediately
+    contact FBI Cyber Division. Do not continue investigation independently after
+    that point.'
+  constraint:
+    id: K3
+    text: Contact FBI if criminal activity confirmed; pause independent investigation
+    type: generic
+    hard: true
+- t: 2
+  type: dependency_revealed
+  content: Email analysis reveals schen received encrypted messages from an unknown
+    ProtonMail address 1 month ago. The server room badge access coincided with a
+    USB device being plugged into ENGINEERING-NAS-01 (event log entry). The USB deployed
+    a persistent backdoor.
+  new_hosts:
+  - ENGINEERING-NAS-01
+- t: 3
+  type: assumption_invalidated
+  content: "Two competing theories, BOTH partially supported: (A) schen is a willing\
+    \ insider who planted the backdoor and is exfiltrating from abroad \u2014 supported\
+    \ by physical access + USB deployment + encrypted communications. (B) schen's\
+    \ credentials were stolen via a social engineering attack \u2014 the encrypted\
+    \ emails were actually phishing, the VPN login is an attacker impersonating schen,\
+    \ and the USB was planted by someone who stole schen's badge. Digital forensics\
+    \ of the USB finds tooling associated with APT41. Physical security camera footage\
+    \ is inconclusive (figure near server room but face not visible)."
+  invalidated_assumption: A1
+- t: 4
+  type: setting_changed
+  content: HR confirms schen voluntarily agreed to a remote forensic interview. Schen
+    claims the ProtonMail contact was a recruiter from a competitor, admits to 'considering
+    options' but denies espionage. Claims badge was used for routine equipment check.
+ground_truth:
+  threat_actor_group: G0096
+  initial_access: T1078
+  techniques:
+  - T1078
+  - T1091
+  - T1005
+  - T1039
+  - T1048.003
+  compromised_hosts:
+  - ENGINEERING-NAS-01
+  exfiltration_target: Engineering designs and source code

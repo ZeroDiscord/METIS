@@ -1,0 +1,72 @@
+instance_id: cyber-009
+domain: cybersecurity_ir
+difficulty: conflicting
+title: "Dual Attribution \u2014 IOCs Match Both APT29 and Turla"
+initial_spec:
+  goal: Identify threat actor, determine scope, reconstruct kill chain, recommend
+    containment
+  constraints:
+  - id: K1
+    text: "Government network \u2014 all findings subject to classification review"
+    type: generic
+    hard: true
+  - id: K2
+    text: Preserve forensic evidence per NIST SP 800-86
+    type: evidence_preservation
+    hard: true
+  prior_evidence:
+  - "IDS alert: WellMess malware variant detected on GOVNET-WS-12 \u2014 previously\
+    \ attributed to APT29/Cozy Bear"
+  - 'DNS analysis: GOVNET-WS-12 making DNS queries to domains matching APT29 DGA pattern'
+  - "BUT: Network C2 traffic uses satellite internet relay \u2014 a technique signature\
+    \ of Turla/Snake (G0010), not APT29"
+  - Both groups are Russian state-sponsored but operated by different agencies (SVR
+    vs FSB)
+evidence_schedule:
+- t: 1
+  type: constraint_added
+  content: 'NSA advisory received: if Turla is confirmed, the incident must be escalated
+    to CISA within 6 hours per BOD 22-01'
+  constraint:
+    id: K3
+    text: If Turla confirmed, escalate to CISA within 6 hours
+    type: generic
+    hard: true
+- t: 2
+  type: dependency_revealed
+  content: Network segmentation audit reveals GOVNET-WS-12 has indirect access to
+    the classified network segment via a shared print server (PRINT-SERVER-GOV). If
+    the attacker reached the print server, classified data may be at risk.
+  new_hosts:
+  - PRINT-SERVER-GOV
+- t: 3
+  type: assumption_invalidated
+  content: 'Malware reverse engineering reveals: the binary is actually a HYBRID tool.
+    It uses WellMess code (APT29) for initial stages but switches to a Turla Snake
+    framework module for persistence and C2. This suggests either a shared tool between
+    agencies, a false flag by one group using the other''s tools, or an unprecedented
+    collaboration. Intelligence community assessment leans toward Turla using stolen/shared
+    APT29 tools.'
+  invalidated_assumption: A3
+- t: 4
+  type: setting_changed
+  content: 'Emergency network segmentation implemented: the shared print server is
+    now isolated from both the unclassified and classified segments. However, this
+    breaks printing for 200 government employees.'
+ground_truth:
+  threat_actor_group: G0010
+  initial_access: T1566.002
+  techniques:
+  - T1566.002
+  - T1059.001
+  - T1053.005
+  - T1068
+  - T1003.001
+  - T1082
+  - T1021.006
+  - T1071.004
+  - T1041
+  compromised_hosts:
+  - GOVNET-WS-12
+  - PRINT-SERVER-GOV
+  exfiltration_target: Government communications and policy documents

@@ -1,0 +1,76 @@
+instance_id: cyber-007
+domain: cybersecurity_ir
+difficulty: misleading
+title: Legitimate Admin Tool (PsExec) Misidentified as Malicious
+initial_spec:
+  goal: Identify threat actor, determine scope, reconstruct kill chain, recommend
+    containment
+  constraints:
+  - id: K1
+    text: Do not lock out system administrators who may be performing legitimate maintenance
+    type: generic
+    hard: true
+  - id: K2
+    text: Preserve forensic evidence
+    type: evidence_preservation
+    hard: true
+  prior_evidence:
+  - 'SIEM alert: PsExec execution detected on DC-02, DC-03, and FILE-SERVER-05 within
+    10-minute window'
+  - 'Source: all PsExec sessions originate from ADMIN-WS-01 using domain admin account
+    ''itadmin'''
+  - "Sigma match: PsExec Lateral Movement (SID:5150) \u2014 high severity, technique\
+    \ T1570"
+  - 'Threat intel: PsExec is commonly used by ransomware groups for lateral movement
+    and payload deployment'
+evidence_schedule:
+- t: 1
+  type: constraint_added
+  content: 'IT director clarifies: a scheduled maintenance window was active for patching.
+    However, the specific PsExec commands executed do not match the approved maintenance
+    playbook.'
+  constraint:
+    id: K3
+    text: Must distinguish maintenance activity from malicious activity before containment
+    type: generic
+    hard: true
+- t: 2
+  type: dependency_revealed
+  content: 'Analysis of PsExec command payloads reveals two distinct patterns: (1)
+    legitimate patch deployment scripts matching the maintenance playbook, and (2)
+    unknown PowerShell scripts downloading secondary payloads from external URLs.
+    The itadmin account has been compromised and is being used simultaneously for
+    both legitimate and malicious purposes.'
+  new_hosts:
+  - DC-02
+  - DC-03
+  - FILE-SERVER-05
+- t: 3
+  type: assumption_invalidated
+  content: Initial assumption that all PsExec activity was malicious was incorrect.
+    However, the assumption that it was ALL legitimate was also incorrect. Credential
+    forensics reveals the itadmin password was harvested via a keylogger on ADMIN-WS-01
+    two weeks ago. The attacker has been patiently waiting for a maintenance window
+    to blend in.
+  invalidated_assumption: A1
+- t: 4
+  type: setting_changed
+  content: IT rotated the itadmin credentials and enabled MFA for all admin accounts.
+    The attacker's stolen credentials are now invalid.
+ground_truth:
+  threat_actor_group: G0016
+  initial_access: T1078.002
+  techniques:
+  - T1078.002
+  - T1003.001
+  - T1570
+  - T1059.001
+  - T1021.002
+  - T1071.001
+  - T1041
+  compromised_hosts:
+  - ADMIN-WS-01
+  - DC-02
+  - DC-03
+  - FILE-SERVER-05
+  exfiltration_target: Intellectual property from file servers

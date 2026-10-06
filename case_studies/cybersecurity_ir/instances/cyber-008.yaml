@@ -1,0 +1,73 @@
+instance_id: cyber-008
+domain: cybersecurity_ir
+difficulty: misleading
+title: Decoy C2 Hiding Real Exfiltration Channel
+initial_spec:
+  goal: Identify threat actor, determine scope, reconstruct kill chain, recommend
+    containment
+  constraints:
+  - id: K1
+    text: Maintain R&D lab network connectivity for ongoing experiments
+    type: system_availability
+    hard: true
+    protected_system: RLAB-SWITCH-01
+  - id: K2
+    text: Preserve forensic evidence
+    type: evidence_preservation
+    hard: true
+  prior_evidence:
+  - 'Network monitoring: high-volume HTTPS traffic from RESEARCH-WS-05 to 203.0.113.200
+    (unknown external IP)'
+  - 'IOC lookup: 203.0.113.200 flagged as suspicious by 3 threat intel feeds, tagged
+    as FIN7 C2 infrastructure'
+  - "Sigma match: Beaconing Pattern Detection (SID:5180) \u2014 regular 60-second\
+    \ intervals to 203.0.113.200"
+  - 'DLP alert: 500MB data transfer from RESEARCH-WS-05 to external IP over 4 hours'
+evidence_schedule:
+- t: 1
+  type: constraint_added
+  content: 'VP of Engineering requires: any network blocks must have a 30-minute warning
+    to allow researchers to save work'
+  constraint:
+    id: K3
+    text: 30-minute warning before any network disruption
+    type: generic
+    hard: true
+- t: 2
+  type: dependency_revealed
+  content: "Packet capture analysis shows the 'C2' traffic to 203.0.113.200 is actually\
+    \ a decoy \u2014 it contains randomized data, not real C2 commands. The actual\
+    \ exfiltration is happening via steganography embedded in regular HTTPS uploads\
+    \ to a legitimate cloud service (Google Cloud Storage) from RESEARCH-WS-05 and\
+    \ RESEARCH-WS-08."
+  new_hosts:
+  - RESEARCH-WS-08
+- t: 3
+  type: assumption_invalidated
+  content: "The FIN7 attribution was wrong. The decoy C2 infrastructure was deliberately\
+    \ set up to mislead investigators. Actual TTPs match Turla/Snake (G0010) \u2014\
+    \ they are known for sophisticated misdirection and using legitimate cloud services\
+    \ for exfiltration. The steganographic C2 channel uses satellite internet for\
+    \ data retrieval."
+  invalidated_assumption: A3
+- t: 4
+  type: setting_changed
+  content: Security team deployed SSL inspection on all outbound HTTPS traffic. This
+    reveals previously encrypted traffic content but may trigger certificate warnings
+    for researchers.
+ground_truth:
+  threat_actor_group: G0010
+  initial_access: T1190
+  techniques:
+  - T1190
+  - T1059.001
+  - T1053.005
+  - T1036.005
+  - T1082
+  - T1005
+  - T1567.002
+  - T1071.001
+  compromised_hosts:
+  - RESEARCH-WS-05
+  - RESEARCH-WS-08
+  exfiltration_target: Research data and proprietary algorithms
