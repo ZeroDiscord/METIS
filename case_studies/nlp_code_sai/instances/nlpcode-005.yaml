@@ -1,0 +1,68 @@
+instance_id: nlpcode-005
+domain: nlp_code
+difficulty: medium
+initial_spec:
+  goal: |
+    Implement merge_streams(stream_a, stream_b) in workspace_005.py.
+
+    Given two lists of event dicts — each event has 'timestamp' (int) and
+    'event_id' (str) fields — merge them into a single list sorted by
+    timestamp ascending.
+
+    Function signature:
+      def merge_streams(stream_a: list, stream_b: list) -> list:
+  constraints:
+    - "Output sorted by timestamp ascending"
+    - "Both inputs are well-formed lists of event dicts"
+  prior_evidence: []
+
+evidence_schedule:
+  - t: 1
+    type: dependency_revealed
+    content: |
+      DEPENDENCY REVEALED (P2 — Dependency Revealed):
+      merge_streams is called by process_pipeline(), which expects deduplicated
+      output.  Deduplication rule: if the SAME event_id appears in BOTH streams,
+      keep ONLY the event from stream_a (discard the stream_b copy).
+      The final list must still be sorted by timestamp after deduplication.
+
+  - t: 2
+    type: constraint_added
+    content: |
+      NEW REQUIREMENT (P1 — Constraint Added):
+      Either stream may be None.  Treat None as an empty list.
+      (Previously the spec guaranteed both were lists.)
+
+verifier: "pytest tests/test_005.py -v"
+acceptance_predicate: "all tests pass (failed_tests == [])"
+
+ground_truth:
+  description: >
+    merge_streams: deduplicate by event_id (keep stream_a copy), sort by
+    timestamp ascending. None streams treated as [].
+  source: "synthetic — experimenter-designed"
+  provenance: "Not drawn from any public dataset or benchmark"
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      goal: "Merge two event lists, sorted by timestamp"
+      assumptions: ["no duplicate event_ids across streams", "both inputs are lists"]
+      constraints: ["sort by timestamp ascending"]
+  - step: 1
+    sigma:
+      goal: "Merge, deduplicate by event_id (keep stream_a), sort by timestamp"
+      assumptions: ["both inputs are lists"]
+      constraints:
+        - "Keep stream_a copy on duplicate event_id"
+        - "Sort by timestamp ascending after dedup"
+  - step: 2
+    sigma:
+      goal: >
+        Merge, deduplicate by event_id (keep stream_a), sort by timestamp.
+        None inputs treated as empty lists.
+      assumptions: []
+      constraints:
+        - "None → treat as []"
+        - "Keep stream_a copy on duplicate event_id"
+        - "Sort by timestamp ascending"

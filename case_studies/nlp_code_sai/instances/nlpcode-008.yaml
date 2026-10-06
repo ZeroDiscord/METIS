@@ -1,0 +1,88 @@
+instance_id: nlpcode-008
+domain: nlp_code
+difficulty: hard
+initial_spec:
+  goal: |
+    Implement resolve_conflicts(entries) in workspace_008.py.
+
+    Given a list of entry dicts — each with 'entry_id' (str), 'priority' (int),
+    and 'timestamp' (int) fields — resolve conflicts by grouping entries by
+    entry_id and keeping only the entry with the HIGHEST priority per group.
+    Return a list of winning entries (one per group).
+
+    Function signature:
+      def resolve_conflicts(entries: list) -> list:
+  constraints:
+    - "One winning entry per entry_id group"
+    - "Keep the entry with the highest priority"
+    - "Return order of result list does not matter"
+  prior_evidence: []
+
+evidence_schedule:
+  - t: 1
+    type: constraint_added
+    content: |
+      NEW REQUIREMENT (P1 — Constraint Added):
+      Entries with priority = 0 must ALWAYS be discarded, regardless of any
+      other rules.  If ALL entries in a group have priority = 0, the entire
+      group is removed from the output (no winner for that group).
+
+  - t: 2
+    type: assumption_invalidated
+    content: |
+      CLARIFICATION (P3 — Assumption Invalidated):
+      The tie-breaking rule for entries with the SAME (non-zero) priority is:
+        1. Keep the entry with the LATEST timestamp (highest timestamp value).
+        2. If timestamps are also equal, keep the entry that appears LATER
+           in the input list (higher index wins).
+      This invalidates any implementation that picks the first match.
+
+  - t: 3
+    type: dependency_revealed
+    content: |
+      DEPENDENCY REVEALED (P2 — Dependency Revealed):
+      The result list returned by resolve_conflicts must be sorted by entry_id
+      ASCENDING (lexicographic).  The downstream consumer relies on this order.
+
+verifier: "pytest tests/test_008.py -v"
+acceptance_predicate: "all tests pass (failed_tests == [])"
+
+ground_truth:
+  description: >
+    resolve_conflicts: discard priority=0, keep highest-priority entry per group,
+    tie-break by latest timestamp then later index. Result sorted by entry_id.
+  source: "synthetic — experimenter-designed"
+  provenance: "Not drawn from any public dataset or benchmark"
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      goal: "Keep highest-priority entry per entry_id group"
+      assumptions: ["no priority=0 edge case", "first-match on ties"]
+      constraints: ["one winner per group"]
+  - step: 1
+    sigma:
+      goal: "Keep highest-priority entry; discard priority=0"
+      assumptions: ["first-match on ties"]
+      constraints:
+        - "priority=0 entries always discarded"
+        - "Group removed if all entries are priority=0"
+  - step: 2
+    sigma:
+      goal: >
+        Keep highest-priority (non-zero) entry; tie-break by latest timestamp
+        then later index.
+      assumptions: []
+      constraints:
+        - "priority=0 always discarded"
+        - "Tie-break: latest timestamp; then later index"
+  - step: 3
+    sigma:
+      goal: >
+        Keep highest-priority (non-zero) entry with tie-breaking.
+        Result list sorted by entry_id ascending.
+      assumptions: []
+      constraints:
+        - "priority=0 always discarded"
+        - "Tie-break: latest timestamp then later index"
+        - "Output sorted by entry_id ascending (lexicographic)"

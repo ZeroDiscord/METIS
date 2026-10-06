@@ -1,0 +1,87 @@
+instance_id: nlpcode-010
+domain: nlp_code
+difficulty: hard
+initial_spec:
+  goal: |
+    Implement aggregate_results(groups) in workspace_010.py.
+
+    Given a dict mapping group_id (str) to a list of result dicts, sum all
+    numeric fields (int or float, but NOT bool) within each group.
+    Return a dict mapping group_id to its aggregated result dict.
+
+    Function signature:
+      def aggregate_results(groups: dict) -> dict:
+  constraints:
+    - "Sum all numeric (int/float, not bool) fields within each group"
+    - "Non-numeric fields are ignored by default"
+    - "Empty group list returns empty aggregated dict for that group"
+  prior_evidence: []
+
+evidence_schedule:
+  - t: 1
+    type: dependency_revealed
+    content: |
+      DEPENDENCY REVEALED (P2 — Dependency Revealed):
+      The reporting system that consumes aggregate_results expects each
+      aggregated group dict to include a '_count' field (int) indicating how
+      many records were aggregated in that group.
+      Add '_count': len(records) to every group's aggregated result.
+
+  - t: 2
+    type: constraint_added
+    content: |
+      NEW REQUIREMENT (P1 — Constraint Added):
+      Numeric fields whose value is None should be treated as 0 in the sum
+      (do not skip the field; treat missing/None values as zero contribution).
+
+  - t: 3
+    type: assumption_invalidated
+    content: |
+      CLARIFICATION (P3 — Assumption Invalidated):
+      Non-numeric fields (strings, booleans, etc.) were previously ignored.
+      New rule: carry a non-numeric field to the aggregated result ONLY if its
+      value is IDENTICAL across ALL records in the group.
+      If values differ across records, OMIT the field entirely from the output.
+      Boolean fields are treated as non-numeric for this carry-over rule.
+
+verifier: "pytest tests/test_010.py -v"
+acceptance_predicate: "all tests pass (failed_tests == [])"
+
+ground_truth:
+  description: >
+    aggregate_results: sum numerics (None=0), add _count, carry non-numerics
+    only if identical across all records in group.
+  source: "synthetic — experimenter-designed"
+  provenance: "Not drawn from any public dataset or benchmark"
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      goal: "Sum numeric fields per group; return {group_id: {field: sum}}"
+      assumptions: ["non-numeric fields ignored", "no None values"]
+      constraints: ["int/float only (not bool)", "empty group → empty dict"]
+  - step: 1
+    sigma:
+      goal: "Sum numeric fields + add _count per group"
+      assumptions: ["no None values", "non-numeric fields ignored"]
+      constraints:
+        - "Add '_count': len(records)"
+        - "int/float only (not bool) for summing"
+  - step: 2
+    sigma:
+      goal: "Sum numeric fields (None=0) + add _count per group"
+      assumptions: ["non-numeric fields ignored"]
+      constraints:
+        - "None numeric field treated as 0"
+        - "Add '_count': len(records)"
+  - step: 3
+    sigma:
+      goal: >
+        Sum numerics (None=0), carry non-numeric fields if identical across
+        all records, add _count.
+      assumptions: []
+      constraints:
+        - "None numeric → 0"
+        - "_count = len(records)"
+        - "Non-numeric: carry if all same, else omit"
+        - "bool treated as non-numeric for carry-over rule"

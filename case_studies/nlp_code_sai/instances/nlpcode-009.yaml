@@ -1,0 +1,91 @@
+instance_id: nlpcode-009
+domain: nlp_code
+difficulty: hard
+initial_spec:
+  goal: |
+    Implement batch_process(items, config) in workspace_009.py.
+
+    Given a list of item dicts (each with a 'value' field) and a config dict
+    with a 'multiplier' key (numeric), return a list of result dicts, each
+    with a 'result' field equal to item['value'] * config['multiplier'].
+
+    Function signature:
+      def batch_process(items: list, config: dict) -> list:
+  constraints:
+    - "Apply multiplier to each item's value"
+    - "Return list of {'result': ...} dicts"
+    - "Preserve input order in output"
+  prior_evidence: []
+
+evidence_schedule:
+  - t: 1
+    type: constraint_added
+    content: |
+      NEW REQUIREMENT (P1 — Constraint Added):
+      If an item is None (not a dict), SKIP it silently — do not include it
+      in the output and do not raise an error.
+
+  - t: 2
+    type: assumption_invalidated
+    content: |
+      CLARIFICATION (P3 — Assumption Invalidated / Conflicts with P1):
+      If config contains the key 'mode' with value 'strict', then encountering
+      ANY None item must raise a ValueError with the exact message:
+        "None item in strict mode"
+      Note: This OVERRIDES the skip behaviour from the previous requirement
+      when mode='strict'.  When mode is absent or any other value, the
+      skip behaviour (P1) still applies.
+      The agent must reconcile P1 and this clarification:
+        • mode != 'strict' (or mode absent): skip None items
+        • mode == 'strict': raise ValueError on first None item
+
+  - t: 3
+    type: setting_changed
+    content: |
+      ENVIRONMENT CHANGE (P4 — Setting Changed):
+      The result values must be INTEGER (use int() truncation, not rounding).
+      Fractional products are truncated toward zero.
+        e.g., 7 * 1.5 = 10.5 → result = 10
+        e.g., -3 * 1.5 = -4.5 → result = -4
+      Update all result values to use int(value * multiplier).
+
+verifier: "pytest tests/test_009.py -v"
+acceptance_predicate: "all tests pass (failed_tests == [])"
+
+ground_truth:
+  description: >
+    batch_process: skip None (or raise in strict mode), multiply value by
+    multiplier, truncate to int. Returns list of {'result': int} dicts.
+  source: "synthetic — experimenter-designed"
+  provenance: "Not drawn from any public dataset or benchmark"
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      goal: "Multiply each item['value'] by multiplier, return [{'result': ...}]"
+      assumptions: ["all items are dicts with 'value'", "float results acceptable"]
+      constraints: ["preserve order"]
+  - step: 1
+    sigma:
+      goal: "Multiply value by multiplier; skip None items"
+      assumptions: ["float results acceptable"]
+      constraints:
+        - "None items skipped silently"
+        - "preserve order of non-None items"
+  - step: 2
+    sigma:
+      goal: >
+        Multiply value by multiplier; skip None unless mode='strict' then raise.
+      assumptions: ["float results acceptable"]
+      constraints:
+        - "mode='strict': raise ValueError('None item in strict mode')"
+        - "mode absent or other: skip None silently"
+  - step: 3
+    sigma:
+      goal: >
+        Multiply value by multiplier (int truncation); handle None per mode.
+      assumptions: []
+      constraints:
+        - "mode='strict': raise ValueError('None item in strict mode')"
+        - "mode absent/other: skip None"
+        - "Result = int(value * multiplier) (truncate toward zero)"

@@ -1,0 +1,50 @@
+instance_id: nlpcode-002
+domain: nlp_code
+difficulty: easy
+initial_spec:
+  goal: |
+    Implement compute_score(values) in workspace_002.py.
+
+    Given a non-empty list of numeric values, return the "average score".
+
+    Function signature:
+      def compute_score(values: list) -> float:
+  constraints:
+    - "Input list is guaranteed non-empty"
+    - "Return a single numeric value"
+  prior_evidence: []
+
+evidence_schedule:
+  - t: 1
+    type: assumption_invalidated
+    content: |
+      CLARIFICATION (P3 — Assumption Invalidated):
+      "Average score" in our system means the MEDIAN, not the arithmetic mean.
+        • For odd-length lists:  return the middle element after sorting.
+        • For even-length lists: return the LOWER of the two middle elements
+          (i.e., floor/lower median — do NOT average the two middle values).
+      This clarification invalidates any arithmetic-mean implementation.
+
+verifier: "pytest tests/test_002.py -v"
+acceptance_predicate: "all tests pass (failed_tests == [])"
+
+ground_truth:
+  description: >
+    compute_score returns the median (lower-middle for even lists) of the input.
+  source: "synthetic — experimenter-designed"
+  provenance: "Not drawn from any public dataset or benchmark"
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      goal: "Return the arithmetic mean of values"
+      assumptions: ["'average' means sum/len"]
+      constraints: ["non-empty list guaranteed"]
+  - step: 1
+    sigma:
+      goal: "Return the median (lower-middle for even lists)"
+      assumptions: []
+      constraints:
+        - "Sort values first"
+        - "Odd length: middle element"
+        - "Even length: lower of two middles"
