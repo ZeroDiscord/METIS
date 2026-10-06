@@ -1,5 +1,5 @@
 """
-verifier.py — Generic Deterministic Verifier for System Performance Diagnosis.
+verifier/verifier.py — Generic Deterministic Verifier for System Performance Diagnosis.
 
 Evaluates diagnosis submissions against hidden ground truth and acceptance criteria
 for all 10 instances strictly deterministically without any LLM judge.
@@ -76,7 +76,6 @@ def verify_diagnosis(
 
     missing_ruled_out = []
     for expected in expected_ruled_out:
-        # Match expected cause in rejected alternatives string
         if expected not in rejected_text and not any(part in rejected_text for part in expected.split("_")):
             missing_ruled_out.append(expected)
 
