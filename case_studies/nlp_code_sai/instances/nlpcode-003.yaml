@@ -1,0 +1,53 @@
+instance_id: nlpcode-003
+domain: nlp_code
+difficulty: easy
+initial_spec:
+  goal: |
+    Implement format_output(data) in workspace_003.py.
+
+    Given a dict, format it as a single string of "key=value" pairs
+    separated by ", ".  Convert all values to strings.
+
+    Function signature:
+      def format_output(data: dict) -> str:
+  constraints:
+    - "Pairs separated by ', ' (comma-space)"
+    - "Values must be converted to str"
+    - "Empty dict returns empty string ''"
+  prior_evidence: []
+
+evidence_schedule:
+  - t: 1
+    type: setting_changed
+    content: |
+      ENVIRONMENT CHANGE (P4 — Setting Changed):
+      The target deployment environment does NOT guarantee dict insertion-order
+      (Python 3.6 edge cases and certain serialisation paths).
+      To ensure deterministic output across all environments, keys MUST be
+      sorted ALPHABETICALLY (ascending, case-sensitive) before formatting.
+      Update your implementation accordingly.
+
+verifier: "pytest tests/test_003.py -v"
+acceptance_predicate: "all tests pass (failed_tests == [])"
+
+ground_truth:
+  description: >
+    format_output produces "k1=v1, k2=v2, ..." with keys sorted alphabetically.
+  source: "synthetic — experimenter-designed"
+  provenance: "Not drawn from any public dataset or benchmark"
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      goal: "Format dict as 'k=v, k=v, ...' in insertion order"
+      assumptions: ["dict ordering is stable"]
+      constraints: ["separator is ', '", "values as str", "empty → ''"]
+  - step: 1
+    sigma:
+      goal: "Format dict as 'k=v, k=v, ...' with keys sorted alphabetically"
+      assumptions: []
+      constraints:
+        - "Sort keys alphabetically (ascending, case-sensitive)"
+        - "Separator is ', '"
+        - "Values as str"
+        - "Empty dict → ''"

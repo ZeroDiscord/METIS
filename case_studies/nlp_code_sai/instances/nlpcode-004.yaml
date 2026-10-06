@@ -1,0 +1,73 @@
+instance_id: nlpcode-004
+domain: nlp_code
+difficulty: medium
+initial_spec:
+  goal: |
+    Implement sort_records(records, key) in workspace_004.py.
+
+    Sort a list of record dicts by the given key in ascending order.
+    Return a new sorted list; do NOT modify the input list.
+
+    Function signature:
+      def sort_records(records: list, key: str) -> list:
+  constraints:
+    - "Ascending order by default"
+    - "Do NOT modify the original list"
+    - "Return a new list"
+  prior_evidence: []
+
+evidence_schedule:
+  - t: 1
+    type: constraint_added
+    content: |
+      NEW REQUIREMENT (P1 — Constraint Added):
+      If a record is missing the sort key, raise a KeyError with the message:
+        "Missing sort key: <key>"
+      (e.g., for key='val': KeyError("Missing sort key: val"))
+
+  - t: 2
+    type: assumption_invalidated
+    content: |
+      CLARIFICATION (P3 — Assumption Invalidated):
+      The simple ascending sort does NOT match system expectations.
+      The ACTUAL required sort order is:
+        1. Non-negative values (>= 0) come FIRST, sorted ascending among themselves.
+        2. Negative values come LAST, sorted by ABSOLUTE VALUE ascending among themselves.
+      Example: [-5, -1, 0, 3, 1]  →  [0, 1, 3, -1, -5]
+      This invalidates any implementation that uses a plain ascending sort.
+
+verifier: "pytest tests/test_004.py -v"
+acceptance_predicate: "all tests pass (failed_tests == [])"
+
+ground_truth:
+  description: >
+    sort_records: non-negatives ascending first, then negatives by abs-value ascending.
+    Missing key raises KeyError("Missing sort key: <key>"). Returns new list.
+  source: "synthetic — experimenter-designed"
+  provenance: "Not drawn from any public dataset or benchmark"
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      goal: "Sort records ascending by key"
+      assumptions: ["all records have the key", "ascending = numeric ascending"]
+      constraints: ["return new list", "do not modify original"]
+  - step: 1
+    sigma:
+      goal: "Sort records ascending by key; raise KeyError on missing key"
+      assumptions: ["ascending = numeric ascending"]
+      constraints:
+        - "Raise KeyError('Missing sort key: <key>') if key absent"
+        - "Return new list"
+        - "Do not modify original"
+  - step: 2
+    sigma:
+      goal: >
+        Sort: non-negatives ascending first, then negatives by abs-value ascending.
+        Raise KeyError on missing key. Return new list.
+      assumptions: []
+      constraints:
+        - "Non-negative (>=0): ascending among themselves"
+        - "Negative (<0): by absolute value ascending, placed AFTER non-negatives"
+        - "Raise KeyError('Missing sort key: <key>') on missing key"
+        - "Return new list; do not modify original"

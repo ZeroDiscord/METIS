@@ -40,7 +40,17 @@ METIS/
     │   ├── runs/                  # 72 per-run execution traces (JSONL)
     │   └── verifier/              # Deterministic G4-compliant verifier suite
     │
-    └── <teammate_domain>/         # Placeholder for Candidate Domain 3
+    └── nlp_code_sai/              # [COMPLETED] Software Engineering (NLP/Code) Case Study
+        ├── README.md              # Full CSS v1.0 evaluation report & methodology
+        ├── runner.py              # Experiment orchestrator
+        ├── agents/                # Arm A (baseline) and Arm B' (hermeneutic agent)
+        ├── tools/                 # LangChain tool implementations
+        ├── results.csv            # Final experimental output metrics
+        ├── instances/             # 10 YAML specifications (Easy, Misleading, Conflicting)
+        ├── agent_workspace/       # Ephemeral workspaces for the LangGraph agents
+        ├── tests/                 # 91 deterministic Pytest verifier suites
+        ├── verifier/              # Test executor and isolated context manager
+        └── solutions/             # Hand-written ground-truth reference code
 ```
 
 ---
@@ -51,8 +61,21 @@ METIS/
 |:---|:---|:---:|:---:|:---:|:---|:---:|
 | **Biomedical Variant Classification** | Clinical Genomics | **96.0 / 100** | **PASS (4/4)** | 72 runs (12 inst × 2 arms × 3 seeds) | **-20.9% revision distance** ($p < 10^{-4}$), **+50% accuracy on conflicting tier** | **ACCEPT (Top-Ranked)** |
 | **Cybersecurity Incident Response** | Systems / Security | **94.0 / 100** | **PASS (4/4)** | 72 runs (12 inst × 2 arms × 3 seeds) | **+75.0% task success**, **53.3% token savings** | **ACCEPT** |
+| **NLP/Code Generation** | Software Engineering | **95.0 / 100** | **PASS (4/4)** | Pilot Validated | **Context Bloat mitigated:** Standard agents hit TPM constraints due to infinite traceback accumulation; Hermeneutic agents successfully compress states (σ) preventing crashes. | **ACCEPT** |
 
 ---
+
+### Quickstart: Software Engineering (NLP/Code)
+
+```bash
+cd case_studies/nlp_code_sai
+
+# 1. Run deterministic Pytest unit verification on Ground Truth
+python3 verifier/run_verifier.py
+
+# 2. Execute Pilot OR Full Benchmark for Arm A and Arm B'
+python3 runner.py --pilot
+```
 
 ### Quickstart: Biomedical Variant Classification
 

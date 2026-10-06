@@ -1,0 +1,73 @@
+instance_id: nlpcode-007
+domain: nlp_code
+difficulty: medium
+initial_spec:
+  goal: |
+    Implement classify_tokens(tokens, rules) in workspace_007.py.
+
+    Given a list of tokens and a rules dict mapping string patterns to string
+    labels, return a list of (token, label) tuples.
+    If a token matches no rule, label it 'unknown'.
+
+    Function signature:
+      def classify_tokens(tokens: list, rules: dict) -> list:
+  constraints:
+    - "Return list of (token, label) tuples in input order"
+    - "Unmatched tokens get label 'unknown'"
+  prior_evidence: []
+
+evidence_schedule:
+  - t: 1
+    type: assumption_invalidated
+    content: |
+      CLARIFICATION (P3 — Assumption Invalidated):
+      Tokens are NOT always strings.  Integer tokens must also be supported.
+      Rule: convert integer tokens to their string representation BEFORE
+      attempting to match against the rules dict keys.
+      (e.g., token 42 is matched against the rule key "42")
+      The original token value (integer) must still appear in the output tuple.
+
+  - t: 2
+    type: setting_changed
+    content: |
+      ENVIRONMENT CHANGE (P4 — Setting Changed):
+      The matching must be CASE-INSENSITIVE.  Rule keys and tokens should both
+      be lowercased before comparison.
+      (e.g., token "Hello" matches rule key "hello"; token "WORLD" matches "world")
+      The original token value (with original casing) must appear in the output.
+
+verifier: "pytest tests/test_007.py -v"
+acceptance_predicate: "all tests pass (failed_tests == [])"
+
+ground_truth:
+  description: >
+    classify_tokens: supports int tokens (converted to str for matching),
+    case-insensitive matching, original token value in output tuples.
+  source: "synthetic — experimenter-designed"
+  provenance: "Not drawn from any public dataset or benchmark"
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      goal: "Match string tokens against rules dict; label unmatched as 'unknown'"
+      assumptions: ["tokens are always strings", "matching is case-sensitive"]
+      constraints: ["return (token, label) tuples", "unmatched → 'unknown'"]
+  - step: 1
+    sigma:
+      goal: "Match tokens against rules; int tokens converted to str for matching"
+      assumptions: ["matching is case-sensitive"]
+      constraints:
+        - "int tokens → str for matching; original int in output"
+        - "return (token, label) tuples"
+        - "unmatched → 'unknown'"
+  - step: 2
+    sigma:
+      goal: >
+        Match tokens case-insensitively; int tokens converted to str.
+        Original token value preserved in output.
+      assumptions: []
+      constraints:
+        - "Case-insensitive matching (lowercase both sides)"
+        - "int tokens → str(token).lower() for matching"
+        - "Original token value in output tuple"
+        - "unmatched → 'unknown'"

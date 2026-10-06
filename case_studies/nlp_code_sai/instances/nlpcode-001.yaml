@@ -1,0 +1,54 @@
+instance_id: nlpcode-001
+domain: nlp_code
+difficulty: easy
+initial_spec:
+  goal: |
+    Implement filter_records(records, threshold) in workspace_001.py.
+
+    Given a list of record dicts (each may have a 'score' field), return ONLY
+    the records where score is STRICTLY GREATER THAN the threshold.
+    Preserve the original order of records in the output.
+
+    Function signature:
+      def filter_records(records: list, threshold: float) -> list:
+  constraints:
+    - "Strictly greater than (not greater-than-or-equal)"
+    - "Preserve original order"
+    - "Return a new list — do not modify the input"
+  prior_evidence: []
+
+evidence_schedule:
+  - t: 1
+    type: constraint_added
+    content: |
+      NEW REQUIREMENT (P1 — Constraint Added):
+      Records that do NOT have a 'score' field must be treated as if their
+      score = 0.  They follow the same threshold rule:
+        • included in output only if 0 > threshold
+        • excluded otherwise
+      This applies to ALL records missing the 'score' key.
+
+verifier: "pytest tests/test_001.py -v"
+acceptance_predicate: "all tests pass (failed_tests == [])"
+
+ground_truth:
+  description: >
+    filter_records filters records where score > threshold;
+    missing 'score' is treated as 0 and follows the same rule.
+  source: "synthetic — experimenter-designed"
+  provenance: "Not drawn from any public dataset or benchmark"
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      goal: "Return records where record['score'] > threshold"
+      assumptions: ["Every record has a 'score' field"]
+      constraints: ["score > threshold (strict)", "preserve order"]
+  - step: 1
+    sigma:
+      goal: "Return records where score > threshold; missing score = 0"
+      assumptions: []
+      constraints:
+        - "score > threshold (strict)"
+        - "missing score treated as 0"
+        - "preserve order"

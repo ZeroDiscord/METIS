@@ -1,0 +1,71 @@
+instance_id: nlpcode-006
+domain: nlp_code
+difficulty: medium
+initial_spec:
+  goal: |
+    Implement find_largest(items) in workspace_006.py.
+
+    Given a list of record dicts, return the single record with the "largest"
+    value.  Each record has a 'value' field (numeric).
+
+    Function signature:
+      def find_largest(items: list) -> dict:
+  constraints:
+    - "Return the entire record dict, not just the value"
+    - "Input list has at least one element"
+  prior_evidence: []
+
+evidence_schedule:
+  - t: 1
+    type: assumption_invalidated
+    content: |
+      CLARIFICATION (P3 — Assumption Invalidated):
+      "Largest" does NOT mean the highest numeric 'value'.
+      In our system, "largest" refers to the record with the highest PRIORITY,
+      as encoded by the 'priority_rank' field.  Priority ranking works like a
+      queue number: a LOWER priority_rank number means HIGHER priority.
+      Therefore find_largest must return the record whose priority_rank is
+      the MINIMUM (i.e., the most important record).
+      This completely invalidates a max-by-value implementation.
+
+  - t: 2
+    type: constraint_added
+    content: |
+      NEW REQUIREMENT (P1 — Constraint Added):
+      If the input list is empty, return None (do not raise an exception).
+      The original spec guaranteed a non-empty list, but callers may now
+      pass an empty list.
+
+verifier: "pytest tests/test_006.py -v"
+acceptance_predicate: "all tests pass (failed_tests == [])"
+
+ground_truth:
+  description: >
+    find_largest returns the record with the minimum priority_rank
+    (highest priority). Returns None for empty input.
+  source: "synthetic — experimenter-designed"
+  provenance: "Not drawn from any public dataset or benchmark"
+
+reference_state_per_step:
+  - step: 0
+    sigma:
+      goal: "Return record with maximum 'value'"
+      assumptions: ["'largest' means max numeric value", "list non-empty"]
+      constraints: ["return full record dict"]
+  - step: 1
+    sigma:
+      goal: "Return record with minimum 'priority_rank' (highest priority)"
+      assumptions: ["list non-empty"]
+      constraints:
+        - "Use priority_rank field, not value field"
+        - "Lower priority_rank = higher priority"
+        - "Return full record dict"
+  - step: 2
+    sigma:
+      goal: "Return record with minimum priority_rank; return None if empty"
+      assumptions: []
+      constraints:
+        - "Use priority_rank field"
+        - "Lower priority_rank = higher priority"
+        - "Return None for empty list"
+        - "Return full record dict"
