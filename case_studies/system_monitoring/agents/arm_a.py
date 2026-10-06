@@ -1,5 +1,5 @@
 """
-arm_a.py — Standard (Arm A) Agentic Workflow for System Performance Diagnosis.
+agents/arm_a.py — Standard (Arm A) Agentic Workflow for System Performance Diagnosis.
 
 Architecture (CSS §4, Arm A):
     START → agent_node → [tool_node → agent_node]* → END
@@ -10,8 +10,12 @@ Has NO access to explicit Hermeneutic Chamber state.
 
 from __future__ import annotations
 import os
+import sys
 import time
 from typing import TypedDict, List, Dict, Any
+
+# Allow imports from the case-study root (environment, tools, verifier)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
@@ -43,13 +47,15 @@ class ArmAState(TypedDict):
     verifier_result: dict
 
 
-_llm = ChatGroq(
-    model="openai/gpt-oss-20b",
-    api_key=os.getenv("GROQ_API_KEY"),
-    temperature=0,
-    max_retries=20,
-)
-_llm_with_tools = _llm.bind_tools(ALL_TOOLS)
+def get_llm():
+    llm = ChatGroq(
+        model="openai/gpt-oss-20b",
+        api_key=os.getenv("GROQ_API_KEY"),
+        temperature=0,
+        max_retries=20,
+    )
+    return llm.bind_tools(ALL_TOOLS)
+
 
 
 def agent_node(state: ArmAState) -> dict:
@@ -83,7 +89,8 @@ INSTRUCTIONS:
     • rejected_alternatives
 """
 
-    response = _llm_with_tools.invoke(prompt)
+    llm_with_tools = get_llm()
+    response = llm_with_tools.invoke(prompt)
 
     try:
         print("\n" + "="*70)

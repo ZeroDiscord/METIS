@@ -1,14 +1,14 @@
 """
-experiment.py — Orchestrates the System Performance Diagnosis case study experiment.
+runner.py — Orchestrates the System Performance Diagnosis case study experiment.
 
 Runs Arm A and Arm B' on any instance (or full pilot matrix), logs JSONL trajectories
 to runs/, and writes summary metrics to results.csv.
 
 Usage:
-    python experiment.py --instance sysmon-001 --arm A --seed 42
-    python experiment.py --instance sysmon-001 --arm B --seed 42
-    python experiment.py --pilot         (runs sysmon-001 on both arms)
-    python experiment.py --full-pilot    (runs all 10 instances on both arms = 20 runs)
+    python runner.py --instance sysmon-001 --arm A --seed 42
+    python runner.py --instance sysmon-001 --arm B --seed 42
+    python runner.py --pilot         (runs sysmon-001 on both arms)
+    python runner.py --full-pilot    (runs all 10 instances on both arms = 20 runs)
 """
 
 from __future__ import annotations
@@ -16,15 +16,20 @@ import argparse
 import csv
 import json
 import os
+import sys
 import time
 from datetime import datetime
 import yaml
 
-from environment import SystemEnvironment
-from arm_a import run_arm_a
-from arm_b import run_arm_b
-
+# Ensure agents and root case study dir are on sys.path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+from environment import SystemEnvironment
+from agents.arm_a import run_arm_a
+from agents.arm_b import run_arm_b
+
 INSTANCES_DIR = os.path.join(BASE_DIR, "instances")
 RUNS_DIR = os.path.join(BASE_DIR, "runs")
 RESULTS_CSV = os.path.join(BASE_DIR, "results.csv")

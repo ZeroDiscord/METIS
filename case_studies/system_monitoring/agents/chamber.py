@@ -14,12 +14,14 @@ from langchain_groq import ChatGroq
 
 load_dotenv()
 
-_llm = ChatGroq(
-    model="openai/gpt-oss-20b",
-    api_key=os.getenv("GROQ_API_KEY"),
-    temperature=0,
-    max_retries=20,
-)
+def get_llm():
+    return ChatGroq(
+        model="openai/gpt-oss-20b",
+        api_key=os.getenv("GROQ_API_KEY"),
+        temperature=0,
+        max_retries=20,
+    )
+
 
 HEADERS = [
     "CURRENT_UNDERSTANDING",
@@ -100,7 +102,8 @@ UNCERTAINTIES:
 - <What remains uncertain and which diagnostic tool should be called next>
 """
 
-    response = _llm.invoke(prompt)
+    llm = get_llm()
+    response = llm.invoke(prompt)
     content = str(response.content)
 
     print("\n" + "="*70)

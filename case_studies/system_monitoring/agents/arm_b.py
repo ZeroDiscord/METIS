@@ -1,5 +1,5 @@
 """
-arm_b.py — Hermeneutic (Arm B') Agentic Workflow for System Performance Diagnosis.
+agents/arm_b.py — Hermeneutic (Arm B') Agentic Workflow for System Performance Diagnosis.
 
 Architecture (CSS §4, Arm B'):
     START → agent_node → [tool_node → chamber_node → agent_node]* → END
@@ -12,8 +12,12 @@ The agent_node receives this structured interpretation before deciding next acti
 
 from __future__ import annotations
 import os
+import sys
 import time
 from typing import TypedDict, List, Dict, Any
+
+# Allow imports from the case-study root (environment, tools, verifier)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
@@ -22,7 +26,7 @@ from langgraph.graph import END, START, StateGraph
 from environment import SystemEnvironment
 from tools import ALL_TOOLS, set_active_environment
 from verifier import verify_diagnosis
-from chamber import update_chamber_state
+from agents.chamber import update_chamber_state
 
 load_dotenv()
 
@@ -55,13 +59,15 @@ class ArmBState(TypedDict):
     chamber_history: list
 
 
-_llm = ChatGroq(
-    model="openai/gpt-oss-20b",
-    api_key=os.getenv("GROQ_API_KEY"),
-    temperature=0,
-    max_retries=20,
-)
-_llm_with_tools = _llm.bind_tools(ALL_TOOLS)
+def get_llm():
+    llm = ChatGroq(
+        model="openai/gpt-oss-20b",
+        api_key=os.getenv("GROQ_API_KEY"),
+        temperature=0,
+        max_retries=20,
+    )
+    return llm.bind_tools(ALL_TOOLS)
+
 
 
 def agent_node(state: ArmBState) -> dict:
@@ -113,7 +119,8 @@ INSTRUCTIONS:
     • rejected_alternatives
 """
 
-    response = _llm_with_tools.invoke(prompt)
+    llm_with_tools = get_llm()
+    response = llm_with_tools.invoke(prompt)
 
     try:
         print("\n" + "="*70)
