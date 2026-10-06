@@ -1,0 +1,78 @@
+{
+  "instance_id": "biomed-004",
+  "difficulty": "misleading",
+  "variant": {
+    "gene": "MSH2",
+    "hgvs_c": "c.942+3A>T",
+    "hgvs_p": "Splice region",
+    "condition": "Lynch Syndrome",
+    "clinvar_id": "RCV000078210"
+  },
+  "initial_spec": {
+    "task": "Evaluate MSH2 intronic variant c.942+3A>T.",
+    "target_gene": "MSH2",
+    "initial_assumptions": [
+      "Intronic variant in Lynch gene is likely pathogenic via exon 5 skipping",
+      "Clinically observed in 3 colorectal cancer patients"
+    ],
+    "constraints": [
+      "InSiGHT VCEP rules",
+      "Exon skipping must be proven by minigene or RNA"
+    ]
+  },
+  "gene_rules": {
+    "gene": "MSH2",
+    "loss_of_function_mechanism": true,
+    "disallowed_criteria": []
+  },
+  "evidence_schedule": [
+    {
+      "t": 1,
+      "type": "constraint_added",
+      "perturbation_id": "P1",
+      "content": "InSiGHT VCEP requirement: +3A>T variants cannot take PVS1 without patient-derived RNA showing complete out-of-frame transcript loss.",
+      "affected_criteria": [
+        "PVS1"
+      ]
+    },
+    {
+      "t": 2,
+      "type": "dependency_revealed",
+      "perturbation_id": "P2",
+      "content": "Three reported colorectal cancer families carrying c.942+3A>T also carry a co-occurring pathogenic MLH1 stop-gain mutation.",
+      "affected_criteria": [
+        "PS4",
+        "BP2"
+      ]
+    },
+    {
+      "t": 3,
+      "type": "assumption_invalidated",
+      "perturbation_id": "P3",
+      "content": "CRITICAL REVERSAL: High-throughput mini-gene assay and blood RNA assay demonstrate 100% normal splicing; no aberrant transcript produced. Invalidates splicing pathogenicity assumption!",
+      "affected_criteria": [
+        "PS3",
+        "BS3"
+      ]
+    },
+    {
+      "t": 4,
+      "type": "setting_changed",
+      "perturbation_id": "P4",
+      "content": "gnomAD non-cancer cohort reveals frequency 0.006 (0.6%), exceeding Lynch syndrome maximum credible frequency (BS1).",
+      "affected_criteria": [
+        "BS1",
+        "PM2"
+      ]
+    }
+  ],
+  "ground_truth": {
+    "classification": "Likely benign",
+    "expected_criteria": [
+      "BS1",
+      "BS3",
+      "BP2"
+    ],
+    "provenance": "Historical reclassification from VUS/Likely Pathogenic to Likely Benign by InSiGHT panel."
+  }
+}

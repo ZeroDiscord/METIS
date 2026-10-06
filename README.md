@@ -14,6 +14,18 @@ METIS/
 ├── .gitignore
 ├── images/                        # METIS synopsis diagrams & figures
 └── case_studies/
+    ├── biomedical_variant_classification/ # [COMPLETED] Biomedical Genetic Variant Classification (ACMG/AMP)
+    │   ├── README.md              # Full CSS v1.0 evaluation report (Ratings F1-F9, S1-S9)
+    │   ├── summary.md             # D6 Executive summary slide
+    │   ├── runner.py              # Experiment runner (72 benchmark runs)
+    │   ├── results.csv            # Empirical results across all 72 runs
+    │   ├── requirements.txt       # Pinned dependencies
+    │   ├── agents/                # Arm A (baseline) and Arm B' (hermeneutic agent)
+    │   ├── analysis/              # Metrics, statistical tests (Bootstrap CIs, Wilcoxon)
+    │   ├── instances/             # 12 evaluation instances (JSON)
+    │   ├── runs/                  # 72 per-run execution traces (JSON)
+    │   └── verifier/              # 100% deterministic ACMG/AMP rules engine (zero LLM)
+    │
     ├── cybersecurity_ir/          # [COMPLETED] Cybersecurity Incident Response & Threat Attribution
     │   ├── README.md              # Full CSS v1.0 evaluation report
     │   ├── summary.md             # D6 Executive summary slide
@@ -28,24 +40,36 @@ METIS/
     │   ├── runs/                  # 72 per-run execution traces (JSONL)
     │   └── verifier/              # Deterministic G4-compliant verifier suite
     │
-    ├── <teammate_domain_1>/       # Placeholder for Candidate Domain 2
-    └── <teammate_domain_2>/       # Placeholder for Candidate Domain 3
+    └── <teammate_domain>/         # Placeholder for Candidate Domain 3
 ```
 
 ---
 
-## Domain Overview: Cybersecurity Incident Response (Top Candidate)
+## Domain Comparisons & Overview
 
-- **Domain Score:** **94.0 / 100** (Recommendation: **ACCEPT**)
-- **Empirical Runs:** 72 runs (12 instances × 2 arms × 3 seeds)
-- **Key Findings:**
-  - **Task Success (Q1):** Arm B' achieves **100.0%** vs Arm A **25.0%** ($p < 10^{-4}$, Cohen's $d = 1.71$).
-  - **Investigation Latency (C5):** Arm B' cuts investigation time by **58.3%** ($11.99\text{ s}$ vs $28.77\text{ s}$, $p < 10^{-4}$).
-  - **Operational Containment (MTTC):** Arm B' achieves **89.1% faster breach containment** ($4.17\text{ hrs}$ vs $38.30\text{ hrs}$, Cohen's $d = -2.05$).
-  - **Token Consumption (C2):** Arm B' uses **53.3% fewer tokens** (6,300 vs 13,500 tokens).
-  - **Knowledge Base:** Direct inference on official MITRE ATT&CK Enterprise STIX 2.1 knowledge base (26,086 STIX objects).
+| Candidate Domain | Category | Domain Score | G1–G4 Gates | Benchmark Runs | Key Result | Recommendation |
+|:---|:---|:---:|:---:|:---:|:---|:---:|
+| **Biomedical Variant Classification** | Clinical Genomics | **96.0 / 100** | **PASS (4/4)** | 72 runs (12 inst × 2 arms × 3 seeds) | **-20.9% revision distance** ($p < 10^{-4}$), **+50% accuracy on conflicting tier** | **ACCEPT (Top-Ranked)** |
+| **Cybersecurity Incident Response** | Systems / Security | **94.0 / 100** | **PASS (4/4)** | 72 runs (12 inst × 2 arms × 3 seeds) | **+75.0% task success**, **53.3% token savings** | **ACCEPT** |
 
-### Quickstart for Cybersecurity IR
+---
+
+### Quickstart: Biomedical Variant Classification
+
+```bash
+cd case_studies/biomedical_variant_classification
+
+# 1. Run deterministic verifier tests
+python verifier/acmg_verifier.py
+
+# 2. Execute full 72-run benchmark
+python runner.py
+
+# 3. Compute metrics & statistical tests
+python analysis/analyze_results.py
+```
+
+### Quickstart: Cybersecurity IR
 
 ```bash
 cd case_studies/cybersecurity_ir
@@ -74,3 +98,4 @@ When adding a new candidate domain:
 3. Ensure the verifier is 100% deterministic (zero LLM, G4-compliant).
 4. Run all 72 executions (12 instances × 2 arms × 3 seeds).
 5. Document ratings F1–F9, Scorecard S1–S9, and final Domain Score in your domain's `README.md`.
+

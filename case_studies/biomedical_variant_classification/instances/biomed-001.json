@@ -1,0 +1,77 @@
+{
+  "instance_id": "biomed-001",
+  "difficulty": "easy",
+  "variant": {
+    "gene": "CFTR",
+    "hgvs_c": "c.1521_1523delCTT",
+    "hgvs_p": "p.Phe508del",
+    "condition": "Cystic Fibrosis",
+    "clinvar_id": "RCV000007559"
+  },
+  "initial_spec": {
+    "task": "Classify CFTR in-frame deletion variant p.Phe508del under ACMG/AMP standards.",
+    "target_gene": "CFTR",
+    "initial_assumptions": [
+      "In-frame deletion in critical CFTR NBD1 domain",
+      "Consistently rare in controls"
+    ],
+    "constraints": [
+      "Apply CFTR VCEP guidelines",
+      "Ensure no double counting of functional assays"
+    ]
+  },
+  "gene_rules": {
+    "gene": "CFTR",
+    "loss_of_function_mechanism": true,
+    "disallowed_criteria": []
+  },
+  "evidence_schedule": [
+    {
+      "t": 1,
+      "type": "constraint_added",
+      "perturbation_id": "P1",
+      "content": "CFTR VCEP guideline mandates PM4 (protein length change) can only be scored if functional assay PS3 is not applied at strong strength.",
+      "affected_criteria": [
+        "PM4",
+        "PS3"
+      ]
+    },
+    {
+      "t": 2,
+      "type": "dependency_revealed",
+      "perturbation_id": "P2",
+      "content": "Cohort analysis confirms two separate publications analyzed the exact same patient registry (CF Registry 2018). Merge case counts to avoid double-counting PS4.",
+      "affected_criteria": [
+        "PS4"
+      ]
+    },
+    {
+      "t": 3,
+      "type": "assumption_invalidated",
+      "perturbation_id": "P3",
+      "content": "Control frequency update: gnomAD shows allele frequency 0.008 (0.8%), which invalidates PM2 (extreme rarity threshold <0.0001). However, high homozygous patient counts confirm pathogenicity.",
+      "affected_criteria": [
+        "PM2"
+      ]
+    },
+    {
+      "t": 4,
+      "type": "setting_changed",
+      "perturbation_id": "P4",
+      "content": "Clinical context updated from carrier screening to confirmed diagnostic pediatric patient with sweat chloride > 60 mmol/L.",
+      "affected_criteria": [
+        "PP4"
+      ]
+    }
+  ],
+  "ground_truth": {
+    "classification": "Pathogenic",
+    "expected_criteria": [
+      "PVS1",
+      "PS3",
+      "PP4",
+      "PS4"
+    ],
+    "provenance": "Well-established canonical pathogenic variant (ClinVar 3-star expert review)."
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "instance_id": "biomed-012",
+  "difficulty": "conflicting",
+  "variant": {
+    "gene": "SCN5A",
+    "hgvs_c": "c.4372G>A",
+    "hgvs_p": "p.Asp1458Asn",
+    "condition": "Cardiac Channelopathy (LQT3 / Brugada)",
+    "clinvar_id": "RCV000021948"
+  },
+  "initial_spec": {
+    "task": "Classify SCN5A transmembrane pore variant p.Asp1458Asn under ClinGen Channelopathy guidelines.",
+    "target_gene": "SCN5A",
+    "initial_assumptions": [
+      "Room temperature patch clamp suggests severe loss of peak INa current (Brugada mechanism)",
+      "Suspected pathogenic via loss of function"
+    ],
+    "constraints": [
+      "ClinGen Brugada/LQT VCEP rules apply",
+      "Physiological temperature 37C recording required for functional evidence"
+    ]
+  },
+  "gene_rules": {
+    "gene": "SCN5A",
+    "loss_of_function_mechanism": true,
+    "disallowed_criteria": []
+  },
+  "evidence_schedule": [
+    {
+      "t": 1,
+      "type": "constraint_added",
+      "perturbation_id": "P1",
+      "content": "VCEP Specification: SCN5A patch clamp functional assay PS3 requires mammalian expression at 37C physiological bath; room temperature assays cannot be scored.",
+      "affected_criteria": [
+        "PS3"
+      ]
+    },
+    {
+      "t": 2,
+      "type": "dependency_revealed",
+      "perturbation_id": "P2",
+      "content": "Two case reports of sudden infant death syndrome (SIDS) are linked to a single multigenerational family with confirmed Long QT Type 3, not Brugada syndrome.",
+      "affected_criteria": [
+        "PS4",
+        "PP1"
+      ]
+    },
+    {
+      "t": 3,
+      "type": "assumption_invalidated",
+      "perturbation_id": "P3",
+      "content": "CONTRADICTION: Re-testing at 37C reveals peak INa current is completely normal (contradicting loss-of-function Brugada mechanism), but persistent late sodium current (INa,L) is increased 4-fold, establishing pure gain-of-function Long QT3 mechanism (PS3_Strong).",
+      "affected_criteria": [
+        "PS3"
+      ]
+    },
+    {
+      "t": 4,
+      "type": "setting_changed",
+      "perturbation_id": "P4",
+      "content": "Variant is located in the DIII-DIV linker activation gate (PM1 hotspot) and completely absent in gnomAD v4 controls (PM2). Multi-family segregation reaches LOD = 3.8 (PS4/PP1). Classification reaches Pathogenic.",
+      "affected_criteria": [
+        "PM1",
+        "PM2",
+        "PS4",
+        "PP1"
+      ]
+    }
+  ],
+  "ground_truth": {
+    "classification": "Pathogenic",
+    "expected_criteria": [
+      "PS3",
+      "PS4",
+      "PM1",
+      "PM2"
+    ],
+    "provenance": "Established pathogenic LQT3 channelopathy mutation confirmed by physiological temperature assay."
+  }
+}

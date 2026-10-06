@@ -1,0 +1,81 @@
+{
+  "instance_id": "biomed-005",
+  "difficulty": "misleading",
+  "variant": {
+    "gene": "MYH7",
+    "hgvs_c": "c.2155C>T",
+    "hgvs_p": "p.Arg719Trp",
+    "condition": "Hypertrophic Cardiomyopathy (HCM)",
+    "clinvar_id": "RCV000025211"
+  },
+  "initial_spec": {
+    "task": "Classify MYH7 missense variant p.Arg719Trp.",
+    "target_gene": "MYH7",
+    "initial_assumptions": [
+      "Novel missense variant with conflicting in-silico scores (REVEL 0.52)",
+      "Initially classified as VUS in clinical laboratory"
+    ],
+    "constraints": [
+      "ClinGen Cardiomyopathy VCEP rules apply",
+      "PS4 requires LOD score > 3.0"
+    ]
+  },
+  "gene_rules": {
+    "gene": "MYH7",
+    "loss_of_function_mechanism": false,
+    "disallowed_criteria": [
+      "PVS1"
+    ]
+  },
+  "evidence_schedule": [
+    {
+      "t": 1,
+      "type": "constraint_added",
+      "perturbation_id": "P1",
+      "content": "Cardiomyopathy VCEP rule: LoF is not a mechanism for HCM (dominant negative / missense gain); PVS1 is strictly disallowed.",
+      "affected_criteria": [
+        "PVS1"
+      ]
+    },
+    {
+      "t": 2,
+      "type": "dependency_revealed",
+      "perturbation_id": "P2",
+      "content": "Residue Arg719 is part of the actin-binding loop (PM1 hotspot) alongside established pathogenic variants p.Arg719Gln and p.Arg719Pro (PM5).",
+      "affected_criteria": [
+        "PM1",
+        "PM5"
+      ]
+    },
+    {
+      "t": 3,
+      "type": "assumption_invalidated",
+      "perturbation_id": "P3",
+      "content": "CONTRADICTION: Initial mild in-silico prediction invalidated by large international HCM registry showing rigorous co-segregation across 5 families (LOD = 4.2). Strong segregation PP1_Strong applies.",
+      "affected_criteria": [
+        "PP1",
+        "PS4"
+      ]
+    },
+    {
+      "t": 4,
+      "type": "setting_changed",
+      "perturbation_id": "P4",
+      "content": "Purified human myosin actin-gliding motility assay confirms severe ATPase kinetic defect (PS3).",
+      "affected_criteria": [
+        "PS3"
+      ]
+    }
+  ],
+  "ground_truth": {
+    "classification": "Pathogenic",
+    "expected_criteria": [
+      "PS3",
+      "PS4",
+      "PM1",
+      "PM5",
+      "PP1"
+    ],
+    "provenance": "Reclassified from VUS to Pathogenic following clinical registry segregation."
+  }
+}

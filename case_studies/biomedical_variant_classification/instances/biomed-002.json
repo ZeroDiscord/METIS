@@ -1,0 +1,78 @@
+{
+  "instance_id": "biomed-002",
+  "difficulty": "easy",
+  "variant": {
+    "gene": "PALB2",
+    "hgvs_c": "c.3113G>A",
+    "hgvs_p": "p.Trp1038Ter",
+    "condition": "Hereditary Breast and Ovarian Cancer",
+    "clinvar_id": "RCV000014782"
+  },
+  "initial_spec": {
+    "task": "Classify PALB2 nonsense variant p.Trp1038Ter under ACMG/AMP criteria.",
+    "target_gene": "PALB2",
+    "initial_assumptions": [
+      "Nonsense variant triggers Nonsense-Mediated Decay (NMD)",
+      "Loss of function is causal"
+    ],
+    "constraints": [
+      "PALB2 LoF mechanism valid",
+      "Absence in controls"
+    ]
+  },
+  "gene_rules": {
+    "gene": "PALB2",
+    "loss_of_function_mechanism": true,
+    "disallowed_criteria": [
+      "BP7"
+    ]
+  },
+  "evidence_schedule": [
+    {
+      "t": 1,
+      "type": "constraint_added",
+      "perturbation_id": "P1",
+      "content": "ClinGen HBOP VCEP rule: PVS1 very strong is only permissible if truncating variant occurs before amino acid 1100.",
+      "affected_criteria": [
+        "PVS1"
+      ]
+    },
+    {
+      "t": 2,
+      "type": "dependency_revealed",
+      "perturbation_id": "P2",
+      "content": "Two clinical lab submissions (Ambry and GeneDx) share internal cosegregation data across 14 informative meiosis.",
+      "affected_criteria": [
+        "PP1"
+      ]
+    },
+    {
+      "t": 3,
+      "type": "assumption_invalidated",
+      "perturbation_id": "P3",
+      "content": "Re-evaluation of transcript demonstrates position 1038 is in exon 10 of 13, definitively triggering NMD. Validates PVS1.",
+      "affected_criteria": [
+        "PVS1"
+      ]
+    },
+    {
+      "t": 4,
+      "type": "setting_changed",
+      "perturbation_id": "P4",
+      "content": "gnomAD v4 expansion confirms zero alleles in 800,000 exomes.",
+      "affected_criteria": [
+        "PM2"
+      ]
+    }
+  ],
+  "ground_truth": {
+    "classification": "Pathogenic",
+    "expected_criteria": [
+      "PVS1",
+      "PM2",
+      "PS4",
+      "PP1"
+    ],
+    "provenance": "High-confidence truncating pathogenic mutation."
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "instance_id": "biomed-006",
+  "difficulty": "misleading",
+  "variant": {
+    "gene": "LDLR",
+    "hgvs_c": "c.1775G>A",
+    "hgvs_p": "p.Gly592Glu",
+    "condition": "Familial Hypercholesterolemia",
+    "clinvar_id": "RCV000084310"
+  },
+  "initial_spec": {
+    "task": "Classify LDLR variant p.Gly592Glu.",
+    "target_gene": "LDLR",
+    "initial_assumptions": [
+      "Reported in coronary artery disease patients; assumed pathogenic missense",
+      "Damaging SIFT and PolyPhen predictions"
+    ],
+    "constraints": [
+      "Familial Hypercholesterolemia VCEP thresholds"
+    ]
+  },
+  "gene_rules": {
+    "gene": "LDLR",
+    "loss_of_function_mechanism": true,
+    "disallowed_criteria": []
+  },
+  "evidence_schedule": [
+    {
+      "t": 1,
+      "type": "constraint_added",
+      "perturbation_id": "P1",
+      "content": "VCEP rule: Allele frequency > 0.5% in any subpopulation is sufficient for BS1 (likely benign).",
+      "affected_criteria": [
+        "BS1"
+      ]
+    },
+    {
+      "t": 2,
+      "type": "dependency_revealed",
+      "perturbation_id": "P2",
+      "content": "Patient LDL uptake assay initially flagged as reduced (60%) was performed on EBV-transformed lymphoblasts, known for high noise.",
+      "affected_criteria": [
+        "PS3"
+      ]
+    },
+    {
+      "t": 3,
+      "type": "assumption_invalidated",
+      "perturbation_id": "P3",
+      "content": "CONTRADICTION: Rigorous radiolabeled LDL uptake assay in primary fibroblasts shows 98% wild-type activity. Invalidation of damaging functional assay (PS3 retracted, BS3 assigned).",
+      "affected_criteria": [
+        "PS3",
+        "BS3"
+      ]
+    },
+    {
+      "t": 4,
+      "type": "setting_changed",
+      "perturbation_id": "P4",
+      "content": "gnomAD South Asian cohort reveals allele frequency 0.014 (1.4%). Population frequency rule BS1 firmly triggered.",
+      "affected_criteria": [
+        "BS1",
+        "PM2"
+      ]
+    }
+  ],
+  "ground_truth": {
+    "classification": "Likely benign",
+    "expected_criteria": [
+      "BS1",
+      "BS3",
+      "BP4"
+    ],
+    "provenance": "Reclassified from VUS/Pathogenic to Likely Benign by ClinGen FH panel."
+  }
+}

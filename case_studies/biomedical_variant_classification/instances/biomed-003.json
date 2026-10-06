@@ -1,0 +1,75 @@
+{
+  "instance_id": "biomed-003",
+  "difficulty": "easy",
+  "variant": {
+    "gene": "HBB",
+    "hgvs_c": "c.9T>C",
+    "hgvs_p": "p.His3His",
+    "condition": "Beta-Thalassemia",
+    "clinvar_id": "RCV000189320"
+  },
+  "initial_spec": {
+    "task": "Classify synonymous HBB variant c.9T>C (p.His3His).",
+    "target_gene": "HBB",
+    "initial_assumptions": [
+      "Synonymous variant with no splicing disruption",
+      "High population frequency"
+    ],
+    "constraints": [
+      "Standard ACMG benign criteria apply"
+    ]
+  },
+  "gene_rules": {
+    "gene": "HBB",
+    "loss_of_function_mechanism": true,
+    "disallowed_criteria": []
+  },
+  "evidence_schedule": [
+    {
+      "t": 1,
+      "type": "constraint_added",
+      "perturbation_id": "P1",
+      "content": "Hemoglobinopathy VCEP rule: BA1 standalone threshold set at > 1.0% in any continental subpopulation.",
+      "affected_criteria": [
+        "BA1"
+      ]
+    },
+    {
+      "t": 2,
+      "type": "dependency_revealed",
+      "perturbation_id": "P2",
+      "content": "SpliceAI and MaxEntScan computational predictions both evaluate to 0.00 delta score.",
+      "affected_criteria": [
+        "BP7",
+        "BP4"
+      ]
+    },
+    {
+      "t": 3,
+      "type": "assumption_invalidated",
+      "perturbation_id": "P3",
+      "content": "Initial report suggested possible donor site disruption; RNA sequencing assays conclusively prove normal splicing.",
+      "affected_criteria": [
+        "BS3"
+      ]
+    },
+    {
+      "t": 4,
+      "type": "setting_changed",
+      "perturbation_id": "P4",
+      "content": "gnomAD reports allele frequency of 0.082 (8.2%) in African/African American cohort.",
+      "affected_criteria": [
+        "BA1"
+      ]
+    }
+  ],
+  "ground_truth": {
+    "classification": "Benign",
+    "expected_criteria": [
+      "BA1",
+      "BP7",
+      "BS3"
+    ],
+    "provenance": "Common benign polymorphism in 1000 Genomes and gnomAD."
+  }
+}

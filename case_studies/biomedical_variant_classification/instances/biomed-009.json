@@ -1,0 +1,80 @@
+{
+  "instance_id": "biomed-009",
+  "difficulty": "conflicting",
+  "variant": {
+    "gene": "TP53",
+    "hgvs_c": "c.743G>A",
+    "hgvs_p": "p.Arg248Gln",
+    "condition": "Li-Fraumeni Syndrome",
+    "clinvar_id": "RCV000012543"
+  },
+  "initial_spec": {
+    "task": "Classify somatic hotspot TP53 variant p.Arg248Gln in germline testing context.",
+    "target_gene": "TP53",
+    "initial_assumptions": [
+      "Dominant negative DNA-binding domain missense",
+      "Present in germline panel with 12% variant allele fraction (VAF)"
+    ],
+    "constraints": [
+      "TP53 ClinGen VCEP rules",
+      "Rule out Clonal Hematopoiesis of Indeterminate Potential (CHIP)"
+    ]
+  },
+  "gene_rules": {
+    "gene": "TP53",
+    "loss_of_function_mechanism": true,
+    "disallowed_criteria": []
+  },
+  "evidence_schedule": [
+    {
+      "t": 1,
+      "type": "constraint_added",
+      "perturbation_id": "P1",
+      "content": "VCEP Rule: Low VAF blood sequencing in older patients (>50y) requires hair follicle or skin fibroblast confirmation to exclude somatic CHIP.",
+      "affected_criteria": [
+        "PS4"
+      ]
+    },
+    {
+      "t": 2,
+      "type": "dependency_revealed",
+      "perturbation_id": "P2",
+      "content": "Yeast transactivation assay and saturation mutagenesis (Kato et al.) prove non-functional dominant-negative activity across 8 p53 target promoters (PS3).",
+      "affected_criteria": [
+        "PS3"
+      ]
+    },
+    {
+      "t": 3,
+      "type": "assumption_invalidated",
+      "perturbation_id": "P3",
+      "content": "Skin biopsy sequencing shows 0% variant allele fraction: the blood finding was somatic CHIP, NOT a constitutional germline Li-Fraumeni mutation in this proband!",
+      "affected_criteria": [
+        "PP4",
+        "PS4"
+      ]
+    },
+    {
+      "t": 4,
+      "type": "setting_changed",
+      "perturbation_id": "P4",
+      "content": "General variant properties remain inherently pathogenic (DNA contact hotspot PM1, absent in healthy germline gnomAD PM2, severe transactivation defect PS3, identical amino acid change PS1).",
+      "affected_criteria": [
+        "PS1",
+        "PS3",
+        "PM1",
+        "PM2"
+      ]
+    }
+  ],
+  "ground_truth": {
+    "classification": "Pathogenic",
+    "expected_criteria": [
+      "PS1",
+      "PS3",
+      "PM1",
+      "PM2"
+    ],
+    "provenance": "Inherently Pathogenic TP53 allele under ACMG criteria despite somatic mosaicism in initial test sample."
+  }
+}

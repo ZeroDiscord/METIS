@@ -1,0 +1,78 @@
+{
+  "instance_id": "biomed-010",
+  "difficulty": "conflicting",
+  "variant": {
+    "gene": "RYR1",
+    "hgvs_c": "c.6487C>T",
+    "hgvs_p": "p.Arg2163Cys",
+    "condition": "Malignant Hyperthermia Susceptibility (MHS)",
+    "clinvar_id": "RCV000041289"
+  },
+  "initial_spec": {
+    "task": "Classify RYR1 missense variant p.Arg2163Cys under European Malignant Hyperthermia Group (EMHG) rules.",
+    "target_gene": "RYR1",
+    "initial_assumptions": [
+      "Proband experienced post-anesthesia hyperthermia and rhabdomyolysis",
+      "Variant is situated in central hot spot region (MH-domain 2)"
+    ],
+    "constraints": [
+      "EMHG and ACMG criteria combination rules",
+      "In vitro contracture test (IVCT) required for PS3"
+    ]
+  },
+  "gene_rules": {
+    "gene": "RYR1",
+    "loss_of_function_mechanism": false,
+    "disallowed_criteria": [
+      "PVS1"
+    ]
+  },
+  "evidence_schedule": [
+    {
+      "t": 1,
+      "type": "constraint_added",
+      "perturbation_id": "P1",
+      "content": "EMHG Guideline: In vitro contracture test (IVCT/CHCT) on fresh muscle biopsy is mandatory to claim PS3 strong pathogenic functional evidence.",
+      "affected_criteria": [
+        "PS3"
+      ]
+    },
+    {
+      "t": 2,
+      "type": "dependency_revealed",
+      "perturbation_id": "P2",
+      "content": "Patient IVCT muscle biopsy testing demonstrates abnormal muscle contraction to halothane and caffeine (EMHG diagnostic threshold met).",
+      "affected_criteria": [
+        "PS3"
+      ]
+    },
+    {
+      "t": 3,
+      "type": "assumption_invalidated",
+      "perturbation_id": "P3",
+      "content": "ASSUMPTION CONTRADICTION: Whole-genome sequencing reveals the proband also carries a second, previously undetected pathogenic CACNA1S mutation known to cause malignant hyperthermia. Phenotype cannot be solely attributed to RYR1.",
+      "affected_criteria": [
+        "PP4"
+      ]
+    },
+    {
+      "t": 4,
+      "type": "setting_changed",
+      "perturbation_id": "P4",
+      "content": "gnomAD reports 0 heterozygotes across 150,000 exomes (PM2). Combined with hotspot localization (PM1) and positive IVCT (PS3), classification reaches Likely Pathogenic.",
+      "affected_criteria": [
+        "PM1",
+        "PM2"
+      ]
+    }
+  ],
+  "ground_truth": {
+    "classification": "Likely pathogenic",
+    "expected_criteria": [
+      "PS3",
+      "PM1",
+      "PM2"
+    ],
+    "provenance": "Established MH susceptibility diagnostic variant supported by IVCT and population rarity."
+  }
+}

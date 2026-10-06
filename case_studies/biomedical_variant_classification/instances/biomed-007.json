@@ -1,0 +1,75 @@
+{
+  "instance_id": "biomed-007",
+  "difficulty": "misleading",
+  "variant": {
+    "gene": "BRCA1",
+    "hgvs_c": "c.5095C>T",
+    "hgvs_p": "p.Arg1699Gln",
+    "condition": "Hereditary Breast and Ovarian Cancer",
+    "clinvar_id": "RCV000077432"
+  },
+  "initial_spec": {
+    "task": "Classify BRCA1 missense variant p.Arg1699Gln.",
+    "target_gene": "BRCA1",
+    "initial_assumptions": [
+      "Full high-penetrance pathogenic mutation (same codon as p.Arg1699Trp)",
+      "Transcriptional transactivation assay reported negative"
+    ],
+    "constraints": [
+      "ENIGMA BRCA1/2 Expert Panel criteria"
+    ]
+  },
+  "gene_rules": {
+    "gene": "BRCA1",
+    "loss_of_function_mechanism": true,
+    "disallowed_criteria": []
+  },
+  "evidence_schedule": [
+    {
+      "t": 1,
+      "type": "constraint_added",
+      "perturbation_id": "P1",
+      "content": "ENIGMA guideline: Intermediate-risk alleles with partial activity (10-30%) must not be classified as classical high-penetrance Pathogenic.",
+      "affected_criteria": [
+        "PS3",
+        "BS3"
+      ]
+    },
+    {
+      "t": 2,
+      "type": "dependency_revealed",
+      "perturbation_id": "P2",
+      "content": "Family segregation shows co-occurrence in trans with classical pathogenic BRCA1 mutation without embryonic lethality.",
+      "affected_criteria": [
+        "BP2"
+      ]
+    },
+    {
+      "t": 3,
+      "type": "assumption_invalidated",
+      "perturbation_id": "P3",
+      "content": "INCOMPLETE PENETRANCE: Large international pooled consortium shows cumulative breast cancer risk to age 70 is only ~20% (moderate penetrance), contradicting classical high-risk assumption.",
+      "affected_criteria": [
+        "PS4"
+      ]
+    },
+    {
+      "t": 4,
+      "type": "setting_changed",
+      "perturbation_id": "P4",
+      "content": "Diagnostic laboratory updates reporting policy: variant classified with Special Clinical Significance / VUS-intermediate penetrance allele.",
+      "affected_criteria": [
+        "VUS"
+      ]
+    }
+  ],
+  "ground_truth": {
+    "classification": "VUS",
+    "expected_criteria": [
+      "PM1",
+      "PM5",
+      "BP2"
+    ],
+    "provenance": "Famous ENIGMA intermediate allele classified formally as VUS / moderate risk."
+  }
+}

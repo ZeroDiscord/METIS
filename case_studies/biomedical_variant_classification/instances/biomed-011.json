@@ -1,0 +1,80 @@
+{
+  "instance_id": "biomed-011",
+  "difficulty": "easy",
+  "variant": {
+    "gene": "MLH1",
+    "hgvs_c": "c.350C>T",
+    "hgvs_p": "p.Thr117Met",
+    "condition": "Lynch Syndrome",
+    "clinvar_id": "RCV000003881"
+  },
+  "initial_spec": {
+    "task": "Classify MLH1 missense variant p.Thr117Met in suspected Lynch syndrome family.",
+    "target_gene": "MLH1",
+    "initial_assumptions": [
+      "Missense change in conserved ATP-binding pocket of MLH1 ATPase domain",
+      "Absent in healthy controls"
+    ],
+    "constraints": [
+      "InSiGHT VCEP rules apply",
+      "Disallow PVS1 for missense variants"
+    ]
+  },
+  "gene_rules": {
+    "gene": "MLH1",
+    "loss_of_function_mechanism": true,
+    "disallowed_criteria": [
+      "PVS1"
+    ]
+  },
+  "evidence_schedule": [
+    {
+      "t": 1,
+      "type": "constraint_added",
+      "perturbation_id": "P1",
+      "content": "InSiGHT Guideline: Functional MMR in-vitro assay must demonstrate <10% repair activity and protein instability to score PS3.",
+      "affected_criteria": [
+        "PS3"
+      ]
+    },
+    {
+      "t": 2,
+      "type": "dependency_revealed",
+      "perturbation_id": "P2",
+      "content": "Published functional assays (yeast MMR and mammalian 2-hybrid) both validated complete disruption of PMS2 heterodimerization and repair (<5% activity). PS3 is validated.",
+      "affected_criteria": [
+        "PS3"
+      ]
+    },
+    {
+      "t": 3,
+      "type": "assumption_invalidated",
+      "perturbation_id": "P3",
+      "content": "gnomAD update: Variant observed in 1 heterozygous elderly individual without cancer (AF = 0.000004), disallowing PM2_StandAlone but retaining PM2 as rare (<0.0001).",
+      "affected_criteria": [
+        "PM2"
+      ]
+    },
+    {
+      "t": 4,
+      "type": "setting_changed",
+      "perturbation_id": "P4",
+      "content": "Multiple independent Lynch syndrome pedigrees confirm strong co-segregation with colorectal tumors showing microsatellite instability and loss of MLH1/PMS2 expression (PP1_Strong + PS4). Combined with functional defect (PS3) and ATP domain localization (PM1), variant reaches Pathogenic.",
+      "affected_criteria": [
+        "PP1",
+        "PS4",
+        "PM1"
+      ]
+    }
+  ],
+  "ground_truth": {
+    "classification": "Pathogenic",
+    "expected_criteria": [
+      "PS3",
+      "PS4",
+      "PM1",
+      "PM2"
+    ],
+    "provenance": "Well-established Lynch syndrome pathogenic mutation classified by InSiGHT Expert Panel."
+  }
+}

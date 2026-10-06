@@ -1,0 +1,78 @@
+{
+  "instance_id": "biomed-008",
+  "difficulty": "conflicting",
+  "variant": {
+    "gene": "KCNQ1",
+    "hgvs_c": "c.1022C>T",
+    "hgvs_p": "p.Ala341Val",
+    "condition": "Long QT Syndrome Type 1 (LQTS1)",
+    "clinvar_id": "RCV000021940"
+  },
+  "initial_spec": {
+    "task": "Classify KCNQ1 pore-region variant p.Ala341Val under conflicting evidence.",
+    "target_gene": "KCNQ1",
+    "initial_assumptions": [
+      "REVEL score 0.44 (borderline neutral)",
+      "Automated patch-clamp assay in CHO cells showed normal current density (BS3)"
+    ],
+    "constraints": [
+      "ClinGen LQTS VCEP specifications",
+      "Check pore vs voltage-sensor domains"
+    ]
+  },
+  "gene_rules": {
+    "gene": "KCNQ1",
+    "loss_of_function_mechanism": true,
+    "disallowed_criteria": []
+  },
+  "evidence_schedule": [
+    {
+      "t": 1,
+      "type": "constraint_added",
+      "perturbation_id": "P1",
+      "content": "VCEP Rule: In silico predictions cannot be used to overrule electrophysiology assays (PP3 and BP4 downweighted).",
+      "affected_criteria": [
+        "BP4",
+        "PP3"
+      ]
+    },
+    {
+      "t": 2,
+      "type": "dependency_revealed",
+      "perturbation_id": "P2",
+      "content": "Residue 341 resides within the pore helix (hotspot PM1). All known missense variants at this position cause LQTS.",
+      "affected_criteria": [
+        "PM1"
+      ]
+    },
+    {
+      "t": 3,
+      "type": "assumption_invalidated",
+      "perturbation_id": "P3",
+      "content": "ASSAY REVERSAL: CHO cell assay was defective due to lack of KCNE1 beta-subunit. Co-expression assay with KCNE1 shows severe loss of I_Ks current and dominant negative suppression. Invalidates BS3 and triggers PS3!",
+      "affected_criteria": [
+        "BS3",
+        "PS3"
+      ]
+    },
+    {
+      "t": 4,
+      "type": "setting_changed",
+      "perturbation_id": "P4",
+      "content": "International LQTS registry publishes cosegregation in 12 families with QTc > 480ms and syncope (PS4).",
+      "affected_criteria": [
+        "PS4"
+      ]
+    }
+  ],
+  "ground_truth": {
+    "classification": "Pathogenic",
+    "expected_criteria": [
+      "PS3",
+      "PS4",
+      "PM1",
+      "PM2"
+    ],
+    "provenance": "Pore helix mutation reclassified to Pathogenic once physiologic beta-subunit assay performed."
+  }
+}
