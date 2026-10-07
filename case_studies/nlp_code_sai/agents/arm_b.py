@@ -52,7 +52,7 @@ class ArmBState(TypedDict):
 
 # ── LLM ───────────────────────────────────────────────────────────────────
 _llm = ChatGroq(
-    model="openai/gpt-oss-120b",
+    model="llama-3.1-70b-versatile",
     api_key=os.getenv("GROQ_API_KEY"),
     temperature=0,
     max_retries=20,
