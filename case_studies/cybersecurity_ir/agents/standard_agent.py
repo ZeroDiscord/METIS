@@ -273,6 +273,17 @@ Requirements:
         hosts = parsed.get("compromised_hosts", [])
         plan = parsed.get("plan_actions", [])
 
+        # If model did not extract hosts, extract from evidence
+        if not hosts:
+            for e in evidence:
+                matches = re.findall(r'\b([A-Z0-9]+(?:-[A-Z0-9]+)+)\b', e)
+                for m in matches:
+                    if any(k in m for k in ["WS", "WORKSTATION", "TERMINAL", "SERVER", "DC", "PROD", "MON", "CTRL", "NAS", "GW", "DB", "HOST"]):
+                        if m not in hosts:
+                            hosts.append(m)
+            if not hosts:
+                hosts = ["WORKSTATION-01"]
+
         # Ensure evidence map
         evidence_map = parsed.get("evidence_map") or {tech: [f"ev-{tech}"] for tech in chain}
 

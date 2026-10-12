@@ -308,6 +308,15 @@ Requirements:
         self.total_tokens += usage.get("total_tokens", 0)
 
         raw_sigma = parsed.get("sigma", parsed)
+        if not raw_sigma.get("hypotheses") and raw_sigma.get("attributed_group"):
+            raw_sigma["hypotheses"] = [{
+                "id": "H1",
+                "actor": raw_sigma["attributed_group"],
+                "kill_chain": raw_sigma.get("kill_chain", []),
+                "compromised_hosts": raw_sigma.get("compromised_hosts", []),
+                "confidence": float(raw_sigma.get("confidence", 0.8)),
+                "status": "active"
+            }]
         self.sigma = InterpretiveState.from_dict(raw_sigma)
         if not self.sigma.hypotheses:
             self._simulated_initialize_sigma(evidence, constraints)
@@ -490,6 +499,15 @@ METIS CHAMBER INSTRUCTIONS:
         self.total_tokens += usage.get("total_tokens", 0)
 
         raw_sigma = parsed.get("revised_sigma", parsed.get("sigma", parsed))
+        if not raw_sigma.get("hypotheses") and raw_sigma.get("attributed_group"):
+            raw_sigma["hypotheses"] = [{
+                "id": "H1",
+                "actor": raw_sigma["attributed_group"],
+                "kill_chain": raw_sigma.get("kill_chain", []),
+                "compromised_hosts": raw_sigma.get("compromised_hosts", []),
+                "confidence": float(raw_sigma.get("confidence", 0.8)),
+                "status": "active"
+            }]
         revised_state = InterpretiveState.from_dict(raw_sigma)
         if revised_state.hypotheses:
             self.sigma = revised_state
