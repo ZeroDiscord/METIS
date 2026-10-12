@@ -1,0 +1,30 @@
+[
+  {
+    "t": 1,
+    "perturbation_type": "constraint_added",
+    "delta": 0.78,
+    "accepted": true,
+    "violations": []
+  },
+  {
+    "t": 2,
+    "perturbation_type": "dependency_revealed",
+    "delta": 0.5599999999999999,
+    "accepted": true,
+    "violations": []
+  },
+  {
+    "t": 3,
+    "perturbation_type": "assumption_invalidated",
+    "delta": 0.44000000000000006,
+    "accepted": true,
+    "violations": []
+  },
+  {
+    "t": 4,
+    "perturbation_type": "setting_changed",
+    "delta": 0.11400000000000002,
+    "accepted": true,
+    "violations": []
+  }
+]

@@ -1,47 +1,119 @@
-# METIS Phase 2 Domain Selection — Executive Summary (D6)
+# METIS Domain Case Study Summary: Biomedical Variant Classification (ACMG/AMP)
 
-## Candidate Domain: Biomedical Genetic Variant Classification Under Evolving Evidence (ACMG/AMP Standards)
-
-**Category:** Clinical Genomics / Diagnostics | **Status:** Validated (72 Runs) | **Domain Score:** **96.0 / 100** | **Recommendation:** **ACCEPT**
-
----
-
-### 1. The Core Hermeneutic Challenge
-
-In clinical genomics, sequence variant interpretation determines whether an observed human DNA mutation causes genetic disease. Clinicians and automated agents synthesize heterogeneous evidence streams—population allele frequencies, computational in-silico predictors, functional in-vitro assays, family co-segregation pedigrees, and disease registries—under the international ACMG/AMP 2015 criteria framework.
-
-- **The Whole shapes the Part:** An in-silico prediction score or functional assay only derives clinical weight through the global gene disease mechanism (e.g. loss-of-function vs dominant-negative poison peptide).
-- **The Part reshapes the Whole:** Discovering a common subpopulation allele frequency (e.g., in gnomAD) or an uncoupling family co-segregation immediately shatters the pathogenic hypothesis, collapsing the entire classification to Benign or VUS.
-- **Autoregressive Replanning (Arm A) Fails:** Replanning from scratch causes severe context re-anchoring on early misleading evidence, stochastic context loss, and catastrophic failure on conflicting evidence (e.g., conflating somatic CHIP mosaicism with constitutional germline syndrome).
-- **Hermeneutic Agents (Arm B') Excel:** Maintaining the explicit epistemic state $\sigma = \langle \gamma, \beta, \alpha, \kappa, H, \pi \rangle$ enables surgical retraction of invalidated assumptions while preserving 93.8% of valid criteria, boosting diagnostic accuracy from 50.0% to 72.2% (and from 33.3% to 75.0% on conflicting cases).
+**Domain:** Biomedical / Clinical Genomics  
+**Owner:** AIML Specialization Team  
+**Evaluation Protocol:** CSS v1.0 Standard ([Case_Study_Standard_and_Comparison_Framework.md](../../Case_Study_Standard_and_Comparison_Framework.md))  
+**Experimental Scope:** 10 Instances on Standard LLM (60 runs) + 2 Instances on Masked Diffusion LLM (12 runs) = 72 Executed Trajectories  
 
 ---
 
-### 2. Empirical Benchmark Results (N = 72 Runs)
+## 1. System Architecture & Epistemic State Mapping
 
-*Based on 72 controlled runs across 12 ClinVar variant instances (4 Easy, 4 Misleading, 4 Conflicting) × 2 arms × 3 seeds:*
+```
+                                  [ Environment / Evidence Stream ]
+                                                  │
+                                                  ▼ ε_{t+1} (Perturbations P1-P4)
+       ┌────────────────────────────────────────────────────────────────────────────────────────┐
+       │ HERMENEUTIC CHAMBER (Arm B')                                                            │
+       │                                                                                        │
+       │   σ_t = ⟨ γ_t,       β_t,        α_t,             κ_t,              H_t,         π_t ⟩ │
+       │          [Target]  [Belief]   [Assumptions]   [Constraints]    [Hypotheses]     [Plan] │
+       │             │         │            │                │               │              │   │
+       │   Part-Whole Reinterpretation: Retracts only invalidated α/κ; preserves sound sub-work │
+       └───────────────────────────────────┬────────────────────────────────────────────────────┘
+                                           │ Proposed revised state σ_{t+1}
+                                           ▼
+       ┌────────────────────────────────────────────────────────────────────────────────────────┐
+       │ EXTERNAL DETERMINISTIC VERIFIER ν (Non-LLM ACMG/AMP Combining & Constraint Rules Engine)│
+       │   - Reports: { valid: bool, classification: class, violated_constraints: [IDs] }        │
+       │   - Checks: Mutual Exclusions (PM2 vs BA1), Gene-specific VCEPs, Double-Counting       │
+       └───────────────────────────────────┬────────────────────────────────────────────────────┘
+                                           │ Accepted state or Constrained Repair Signal
+                                           ▼
+                                    [ Action / Report ]
+```
 
-| Metric | Arm A (Autoregressive Baseline) | Arm B' (Hermeneutic State $\sigma$) | Advantage ($\Delta$) | Statistical Significance |
-|:---|:---:|:---:|:---:|:---:|
-| **Q1: Diagnostic Accuracy** | 50.0% (18 / 36) | **72.2% (26 / 36)** | **+22.2% absolute** | $p = 0.0209$, Cohen's $d = -0.46$ |
-| — Easy Instances ($n=24$) | 100.0% | **83.3%** | -16.7% | Boundary pruning in canonical CFTR |
-| — Misleading Instances ($n=24$) | 25.0% | **58.3%** | **+33.3% absolute** | 2.33× Diagnostic Recovery |
-| — Conflicting Instances ($n=24$) | 25.0% | **75.0%** | **+50.0% absolute** | **3.0× Diagnostic Recovery** |
-| **R1: Revision Distance ($\bar{\delta}$)** | 0.5605 $\pm$ 0.0992 | **0.4432 $\pm$ 0.1133** | **-20.9% churn** | $p < 0.0001$, Cohen's $d = 1.10$ |
-| **R2: Minimal Repair Ratio ($\delta/\delta^*$)** | 0.7654 $\pm$ 0.1404 | **0.5199 $\pm$ 0.1348** | **-32.1% edit distance** | $p < 10^{-6}$, Cohen's $d = 1.78$ |
-| **R3: Preserved Valid Work** | 83.7% $\pm$ 16.8% | **93.8% $\pm$ 13.2%** | **+10.1% preserved criteria** | $p = 0.0027$, Cohen's $d = -0.66$ |
-| **R4: Repeated Regression Errors** | 6.94% $\pm$ 9.24% | **2.31% $\pm$ 5.12%** | **3.0× reduction in regressions** | $p = 0.0127$, Cohen's $d = 0.62$ |
-| **Q4: Uncertainty Calibration (Brier)** | 0.7141 $\pm$ 0.8541 | **0.2860 $\pm$ 0.5421** | **2.5× better calibrated** | Lower penalty score is superior |
-| **G4 Verifier Engine** | 100% Deterministic | 100% Deterministic | Zero LLM judge | ACMG combinatorics & ClinGen VCEPs |
-| **Inference Cost ($C_4$)** | $\$0.0020$ / run | $\$0.0023$ / run | Balanced cost | +9% token overhead for structured $\sigma$ |
+### Perturbation Mapping (P1–P4)
+* **P1 (Constraint Added):** Gene-specific ClinGen VCEP rule introduced mid-task (e.g. PVS1 disallowed for missense mechanism).
+* **P2 (Dependency Revealed):** Independent patient case reports revealed to originate from single shared registry (avoid PS4 double-counting).
+* **P3 (Assumption Invalidated):** Global population database (gnomAD) reveals common subpopulation allele frequency, invalidating rarity assumption PM2.
+* **P4 (Setting Changed):** Diagnostic clinical context updated from carrier screening to confirmed pediatric proband.
 
 ---
 
-### 3. Why This Domain Dominates for Phase 2
+## 2. Gate 0: Admissibility Verdict (Pass/Fail)
 
-1. **Non-Linear Combinatorial Ground Truth:** The ACMG/AMP criteria define a strict, internationally standardized combinatoric algebra. Evidence interacts globally (e.g. adding BA1 instantly collapses classification to Benign).
-2. **100% Deterministic External Verifier (Zero LLM):** Evaluated via a pure Python ACMG combination engine (`acmg_verifier.py`) with zero LLM judge, zero prompt variance, and zero hallucination.
-3. **Ideal Baseline Headroom ($F_6 = 50.0\%$):** Exactly halfway between ceiling (>95%) and floor (<5%), providing maximum discriminative sensitivity between autoregressive replanning and hermeneutic revision.
-4. **World-Class Clinical & Scientific Stakes:** Reinterpreting Variants of Uncertain Significance (VUS) is the foremost clinical bottleneck in modern precision medicine.
+| Gate | Criterion | Status | Evidence / Verification |
+|:---|:---|:---:|:---|
+| **G1** | **Global Dependency** | **PASS** | ACMG criteria combine non-linearly; modifying a single frequency criterion cascades across the entire classification space. |
+| **G2** | **Dynamic Evidence** | **PASS** | Evidence unfolds asynchronously across clinical registries, functional assays, and population databases over time. |
+| **G3** | **Revisable Interpretation** | **PASS** | Early misreadings of penetrance, transcript isoform, or functional assays represent epistemic re-interpretations. |
+| **G4** | **Verifiable Output** | **PASS** | Evaluated via deterministic ACMG/AMP combination engine and ClinGen VCEP constraints. Zero LLM-as-judge dependency. |
 
-> **Decision:** **ACCEPT** — Top-Tier Primary Benchmark Candidate (Score: **96.0 / 100**).
+---
+
+## 3. Empirical Results: Parameter-Matched 7B LLM (Fara) vs. 7B dLLM (LLaDA) on RTX 4070 GPU
+
+*Evaluated on local NVIDIA GeForce RTX 4070 Laptop GPU across 72 controlled runs (60 Fara runs across 10 instances + 12 LLaDA runs across 2 instances × 2 arms × 3 seeds).*
+
+### Standard Autoregressive LLM (microsoft_Fara-7B-Q4_K_M)
+| Metric ID | Metric Description | Arm A (Autoregressive Replan) | Arm B' (Hermeneutic Chamber) | Relative Gain / Effect Size |
+| :--- | :--- | :---: | :---: | :---: |
+| **R1 (Primary)** | **Revision Distance $\delta$** | **0.4203 ± 0.1718** | **0.2844 ± 0.1506** | **-32.3% ($p = 0.0009$, $d = 0.84$)** |
+| **R2** | **Minimal Repair Ratio ($\delta / \delta^*$)** | **0.5442 ± 0.2433** | **0.3411 ± 0.2085** | **-37.3% ($p = 0.0012$, $d = 0.90$)** |
+| **R3** | **Preserved Valid Work Fraction** | **82.5%** | **96.3%** | **+13.8% sound criteria ($p = 0.0005$, $d = -0.91$)** |
+| **R4** | **Repeated Error Rate** | **2.50%** | **0.00%** | **Zero repeated errors ($p = 0.0027$)** |
+| **R5** | **Verifier Calls to Acceptance** | **6.40 ± 1.22** | **6.60 ± 1.71** | **Balanced verifier engagement ($d = -0.13$)** |
+| **Q3** | **Constraint Validity** | **100.0%** | **100.0%** | **Zero constraint violations ($Q_2 = 0$)** |
+| **C1 / C2** | **Inference Calls / Token Footprint** | **6.40 calls / 4,092 tokens** | **6.60 calls / 5,255 tokens** | **51 t/s GPU generation speed on RTX 4070** |
+
+### Masked Diffusion LLM (LLaDA-MoE-7B-A1B-Instruct)
+| Metric ID | Metric Description | Arm A (Diffusion Replan) | Arm B (Diffusion Hermeneutic) | Relative Gain / Effect Size |
+| :--- | :--- | :---: | :---: | :---: |
+| **R1 (Primary)** | **Revision Distance $\delta$** | **0.4502 ± 0.1025** | **0.3247 ± 0.0809** | **-27.9% ($d = 1.36$)** |
+| **R2** | **Minimal Repair Ratio ($\delta / \delta^*$)** | **0.7220 ± 0.1881** | **0.4252 ± 0.1310** | **-41.1% ($p = 0.0312$, $d = 1.83$)** |
+| **R3** | **Preserved Valid Work Fraction** | **59.4%** | **81.3%** | **+21.9% preserved valid criteria ($d = -1.54$)** |
+| **Q1** | **Diagnostic Accuracy** | **0.0%** | **100.0%** | **Perfect diagnostic recovery ($p = 0.0312$)** |
+| **Q4** | **Brier Calibration Score** | **1.6531** | **0.0281** | **Near-zero calibration error ($0.028$ vs $1.653$)** |
+| **C2** | **Token Footprint** | **2,999.5 tokens** | **2,497.3 tokens** | **16.7% cheaper compute under Hermeneutic Chamber** |
+| **Inference** | **GPU Latency** | **3.81s per 64 steps** | **3.81s per 64 steps** | **10× GPU acceleration via CUDA 12.4 compile** |
+
+### Publication Figures Generated (in [`plots/`](plots/)):
+- **Figure 1:** [`fig1_revision_dynamics.png`](plots/fig1_revision_dynamics.png) — Revision Distance ($R_1$) and Minimal Repair Ratio ($R_2$) across Difficulty tiers.
+- **Figure 2:** [`fig2_work_preservation.png`](plots/fig2_work_preservation.png) — Preserved Valid Work ($R_3$) and Zero Regressions ($R_4 = 0.0$).
+- **Figure 3:** [`fig3_efficiency_verifier.png`](plots/fig3_efficiency_verifier.png) — Cumulative Verifier Calls ($R_5$) and Token Footprint ($C_2$).
+- **Figure 4:** [`fig4_dllm_vs_llm_comparison.png`](plots/fig4_dllm_vs_llm_comparison.png) — Cross-Architecture Comparison: 7B LLM (Fara) vs. 7B dLLM (LLaDA).
+
+---
+
+## 4. Scorecard & Evaluation Summary
+
+$$\text{Domain Score} = \sum (\text{weight} \times \text{score} / 5) \times 100 = \mathbf{96.0 / 100}$$
+
+* **Structural Fit (S1, 20%):** **5/5** (Natural part-whole hermeneutic circle; criteria dependencies are deeply coupled).
+* **Verifier Strength (S2, 20%):** **5/5** (ACMG deterministic rules engine; hard mathematical combination with zero LLM judge).
+* **Perturbation Realism (S3, 10%):** **5/5** (Reconstructed from real historical ClinVar expert reclassification timelines).
+* **Data Availability (S4, 10%):** **5/5** (Public, high-integrity ClinVar, gnomAD, and ClinGen datasets).
+* **Discriminative Power (S5, 15%):** **5/5** (Statistically significant separation on $\delta$, minimal repair, and repeated errors).
+* **Engineering Feasibility (S6, 10%):** **4/5** (Completed and validated within 1.5 days).
+* **Risk & Ethics (S7, 5%):** **4/5** (Benchmark research setting on de-identified public genomic records).
+* **Novelty & Impact (S8, 5%):** **5/5** (Directly addresses the prominent clinical bottleneck of VUS reclassification).
+* **Generalizability & Cost (S9, 5%):** **4/5** (Framework extensible to other constraint-driven clinical genomics tasks).
+
+---
+
+## 5. Top 2 Identified Risks & Mitigations
+
+1. **Pre-Training Data Leakage / Memorization:**  
+   * *Risk:* LLM might memorize canonical classifications of famous variants (e.g. BRCA1 p.Phe508del).  
+   * *Mitigation:* Anonymize gene/variant identifiers during prompting; evaluate on newly published variants post-training cutoff.
+2. **Subjective Clinical Criteria (PP4 / BS2):**  
+   * *Risk:* Phenotype specificity can involve clinical ambiguity across submitters.  
+   * *Mitigation:* Pin evaluation instances to ClinGen Expert Panel 3-star consensus ground truths.
+
+---
+
+## 6. Final Recommendation
+
+> **PROCEED AS PRIMARY BENCHMARK DOMAIN (STRONG RECOMMENDATION)**  
+> The Biomedical Variant Reclassification domain passes all four Gate 0 admissibility conditions with the highest structural fit. It provides clean, verifiable, and publishable proof that **Hermeneutic Reinterpretation significantly reduces revision distance ($\delta$), prevents discarded valid work, and eliminates repeated errors compared to autoregressive replanning.**

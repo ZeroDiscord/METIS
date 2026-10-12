@@ -17,13 +17,18 @@ METIS/
     ├── biomedical_variant_classification/ # [COMPLETED] Biomedical Genetic Variant Classification (ACMG/AMP)
     │   ├── README.md              # Full CSS v1.0 evaluation report (Ratings F1-F9, S1-S9)
     │   ├── summary.md             # D6 Executive summary slide
-    │   ├── runner.py              # Experiment runner (72 benchmark runs)
-    │   ├── results.csv            # Empirical results across all 72 runs
+    │   ├── experiment_runner_fara.py # 60 GPU runs on parameter-matched Autoregressive 7B (Fara)
+    │   ├── experiment_runner_diffusion.py # 12 GPU runs on Masked Diffusion 7B (LLaDA)
+    │   ├── plot_comparative_study.py # 300 DPI publication figure generator (Figures 1-4)
+    │   ├── plots/                 # High-res publication plots (fig1-fig4)
+    │   ├── results.csv            # Primary 72-run empirical results across GPU backbones
+    │   ├── results_fara.csv       # 60-run Fara 7B empirical dataset
+    │   ├── backup_gemini/         # Preserved original Gemini baseline runs & statistics
+    │   ├── statistical_summary.json # Machine-readable bootstrap CIs, Cohen's d, Wilcoxon tests
     │   ├── requirements.txt       # Pinned dependencies
-    │   ├── agents/                # Arm A (baseline) and Arm B' (hermeneutic agent)
-    │   ├── analysis/              # Metrics, statistical tests (Bootstrap CIs, Wilcoxon)
+    │   ├── agents/                # Arm A (baseline), Arm B' (hermeneutic agent), and agent_fara.py
     │   ├── instances/             # 12 evaluation instances (JSON)
-    │   ├── runs/                  # 72 per-run execution traces (JSON)
+    │   ├── runs/                  # Execution traces across all evaluated models (JSON)
     │   └── verifier/              # 100% deterministic ACMG/AMP rules engine (zero LLM)
     │
     ├── cybersecurity_ir/          # [COMPLETED] Cybersecurity Incident Response & Threat Attribution
@@ -71,7 +76,7 @@ METIS/
 
 | Candidate Domain | Category | Domain Score | G1–G4 Gates | Benchmark Runs | Key Result | Recommendation |
 |:---|:---|:---:|:---:|:---:|:---|:---:|
-| **Biomedical Variant Classification** | Clinical Genomics | **96.0 / 100** | **PASS (4/4)** | 72 runs (12 inst × 2 arms × 3 seeds) | **-20.9% revision distance** ($p < 10^{-4}$), **+50% accuracy on conflicting tier** | **ACCEPT (Top-Ranked)** |
+| **Biomedical Variant Classification** | Clinical Genomics | **96.0 / 100** | **PASS (4/4)** | 72 GPU runs (12 inst × 2 arms × 3 seeds) | **-32.3% revision distance** ($p < 0.001$), **0% repeated regressions**, **100% vs 0% diagnostic accuracy under Masked Diffusion (dLLM)** | **ACCEPT (Top-Ranked)** |
 | **Cybersecurity Incident Response** | Systems / Security | **94.0 / 100** | **PASS (4/4)** | 72 runs (12 inst × 2 arms × 3 seeds) | **+75.0% task success**, **53.3% token savings** | **ACCEPT** |
 | **System Performance Diagnosis** | Systems / Infrastructure | **92.5 / 100** | **PASS (4/4)** | 60 runs (10 inst × 2 arms × 3 seeds) | **+46.7% task accuracy** (100% vs 53.3%), **-34.7% revision distance** | **ACCEPT** |
 | **NLP/Code Generation** | Software Engineering | **95.0 / 100** | **PASS (4/4)** | Pilot Validated | **Context Bloat mitigated:** Standard agents hit TPM constraints due to infinite traceback accumulation; Hermeneutic agents successfully compress states (σ) preventing crashes. | **ACCEPT** |
@@ -95,14 +100,20 @@ python3 runner.py --pilot
 ```bash
 cd case_studies/biomedical_variant_classification
 
-# 1. Run deterministic verifier tests
+# 1. Run deterministic ACMG verifier unit tests
 python verifier/acmg_verifier.py
 
-# 2. Execute full 72-run benchmark
-python runner.py
+# 2. Execute parameter-matched Autoregressive 7B (Fara) benchmark on GPU
+python experiment_runner_fara.py
 
-# 3. Compute metrics & statistical tests
+# 3. Execute Masked Diffusion 7B (LLaDA) benchmark on GPU
+python experiment_runner_diffusion.py
+
+# 4. Compute metrics & statistical tests
 python analysis/analyze_results.py
+
+# 5. Generate publication comparison figures
+python plot_comparative_study.py
 ```
 
 ### Quickstart: System Performance Diagnosis (System Monitoring)

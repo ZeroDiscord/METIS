@@ -34,3 +34,15 @@ Thumbs.db
 *.swp
 *.swo
 *.log
+
+# Large Model Weights and Binaries (>50MB)
+*.gguf
+*.bin
+*.exe
+*.dll
+*.lib
+*.exp
+llama_src/
+llama_bin/
+build/
+build_cuda/

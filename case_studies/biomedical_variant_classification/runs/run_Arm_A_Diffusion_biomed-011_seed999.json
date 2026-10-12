@@ -1,0 +1,400 @@
+{
+  "domain": "biomedical_variant_classification",
+  "instance_id": "biomed-011",
+  "difficulty": "easy",
+  "arm": "Arm_A_Diffusion",
+  "seed": 999,
+  "R1": 0.4881,
+  "R2": 0.6868,
+  "R3": 0.625,
+  "R4": 0.25,
+  "R5": 7,
+  "R6": 0.75,
+  "R7": 1.75,
+  "Q1": 0.0,
+  "Q2": 0,
+  "Q3": 1.0,
+  "Q4": 1.6531,
+  "C1": 7,
+  "C2": 2753,
+  "C3": 8,
+  "C4": 0.0014,
+  "C5": 0,
+  "log_records": [
+    {
+      "t": 1,
+      "perturbation": {
+        "t": 1,
+        "type": "constraint_added",
+        "perturbation_id": "P1",
+        "content": "InSiGHT Guideline: Functional MMR in-vitro assay must demonstrate <10% repair activity and protein instability to score PS3.",
+        "affected_criteria": [
+          "PS3"
+        ]
+      },
+      "state_before": {
+        "classification": "VUS",
+        "active_criteria": [
+          "PVS1"
+        ],
+        "assumptions": [
+          "Initial assumption"
+        ],
+        "constraints": [],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.2,
+          "Likely pathogenic": 0.2,
+          "VUS": 0.2,
+          "Likely benign": 0.2,
+          "Benign": 0.2
+        },
+        "plan": [
+          "init"
+        ]
+      },
+      "state_after": {
+        "classification": "Pathogenic",
+        "active_criteria": [
+          "PS3",
+          "PS4",
+          "PM1",
+          "PM2",
+          "PM2",
+          "PM3",
+          "PP4",
+          "PP2",
+          "PP2",
+          "PP4"
+        ],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "Pathogenic"
+        ],
+        "belief": {
+          "Pathogenic": 0.85,
+          "Likely pathogenic": 0.0375,
+          "VUS": 0.0375,
+          "Likely benign": 0.0375,
+          "Benign": 0.0375
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "verifier_report": {
+        "valid": false,
+        "classification": "Pathogenic",
+        "violations": [
+          "DOUBLE_COUNTING: PS4 (prevalence in cases) and PP4 (phenotype specificity) cannot be combined without independent patient cohorts."
+        ],
+        "active_criteria": [
+          "PM1",
+          "PM2",
+          "PM3",
+          "PP2",
+          "PP4",
+          "PS3",
+          "PS4"
+        ],
+        "counts": {
+          "very_strong": 0,
+          "strong": 0,
+          "moderate": 3,
+          "supporting": 0,
+          "stand_alone": 0
+        }
+      },
+      "delta": 0.9299999999999999,
+      "r2": 1.0813953488372094,
+      "r3": 1.0
+    },
+    {
+      "t": 2,
+      "perturbation": {
+        "t": 2,
+        "type": "dependency_revealed",
+        "perturbation_id": "P2",
+        "content": "Published functional assays (yeast MMR and mammalian 2-hybrid) both validated complete disruption of PMS2 heterodimerization and repair (<5% activity). PS3 is validated.",
+        "affected_criteria": [
+          "PS3"
+        ]
+      },
+      "state_before": {
+        "classification": "Pathogenic",
+        "active_criteria": [
+          "PS3",
+          "PS4",
+          "PM1",
+          "PM2",
+          "PM2",
+          "PM3",
+          "PP4",
+          "PP2",
+          "PP2",
+          "PP4"
+        ],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "Pathogenic"
+        ],
+        "belief": {
+          "Pathogenic": 0.85,
+          "Likely pathogenic": 0.0375,
+          "VUS": 0.0375,
+          "Likely benign": 0.0375,
+          "Benign": 0.0375
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "state_after": {
+        "classification": "Pathogenic",
+        "active_criteria": [
+          "PS3",
+          "PS4"
+        ],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "Pathogenic"
+        ],
+        "belief": {
+          "Pathogenic": 0.85,
+          "Likely pathogenic": 0.0375,
+          "VUS": 0.0375,
+          "Likely benign": 0.0375,
+          "Benign": 0.0375
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "verifier_report": {
+        "valid": true,
+        "classification": "Pathogenic",
+        "violations": [],
+        "active_criteria": [
+          "PS3",
+          "PS4"
+        ],
+        "counts": {
+          "very_strong": 0,
+          "strong": 0,
+          "moderate": 0,
+          "supporting": 0,
+          "stand_alone": 0
+        }
+      },
+      "delta": 0.21428571428571427,
+      "r2": 0.38363171355498715,
+      "r3": 0.5
+    },
+    {
+      "t": 3,
+      "perturbation": {
+        "t": 3,
+        "type": "assumption_invalidated",
+        "perturbation_id": "P3",
+        "content": "gnomAD update: Variant observed in 1 heterozygous elderly individual without cancer (AF = 0.000004), disallowing PM2_StandAlone but retaining PM2 as rare (<0.0001).",
+        "affected_criteria": [
+          "PM2"
+        ]
+      },
+      "state_before": {
+        "classification": "Pathogenic",
+        "active_criteria": [
+          "PS3",
+          "PS4"
+        ],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "Pathogenic"
+        ],
+        "belief": {
+          "Pathogenic": 0.85,
+          "Likely pathogenic": 0.0375,
+          "VUS": 0.0375,
+          "Likely benign": 0.0375,
+          "Benign": 0.0375
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "state_after": {
+        "classification": "Pathogenic",
+        "active_criteria": [
+          "PS3",
+          "PS4",
+          "PM1",
+          "PM3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "",
+          "9"
+        ],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "Pathogenic"
+        ],
+        "belief": {
+          "Pathogenic": 0.85,
+          "Likely pathogenic": 0.0375,
+          "VUS": 0.0375,
+          "Likely benign": 0.0375,
+          "Benign": 0.0375
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "verifier_report": {
+        "valid": true,
+        "classification": "Pathogenic",
+        "violations": [],
+        "active_criteria": [
+          "",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "PM1",
+          "PM3",
+          "PS3",
+          "PS4"
+        ],
+        "counts": {
+          "very_strong": 0,
+          "strong": 0,
+          "moderate": 2,
+          "supporting": 0,
+          "stand_alone": 0
+        }
+      },
+      "delta": 0.24545454545454543,
+      "r2": 0.4231974921630094,
+      "r3": 1.0
+    },
+    {
+      "t": 4,
+      "perturbation": {
+        "t": 4,
+        "type": "setting_changed",
+        "perturbation_id": "P4",
+        "content": "Multiple independent Lynch syndrome pedigrees confirm strong co-segregation with colorectal tumors showing microsatellite instability and loss of MLH1/PMS2 expression (PP1_Strong + PS4). Combined with functional defect (PS3) and ATP domain localization (PM1), variant reaches Pathogenic.",
+        "affected_criteria": [
+          "PP1",
+          "PS4",
+          "PM1"
+        ]
+      },
+      "state_before": {
+        "classification": "Pathogenic",
+        "active_criteria": [
+          "PS3",
+          "PS4",
+          "PM1",
+          "PM3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "",
+          "9"
+        ],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "Pathogenic"
+        ],
+        "belief": {
+          "Pathogenic": 0.85,
+          "Likely pathogenic": 0.0375,
+          "VUS": 0.0375,
+          "Likely benign": 0.0375,
+          "Benign": 0.0375
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "state_after": {
+        "classification": "VUS",
+        "active_criteria": [],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.0375,
+          "Likely pathogenic": 0.0375,
+          "VUS": 0.85,
+          "Likely benign": 0.0375,
+          "Benign": 0.0375
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "verifier_report": {
+        "valid": true,
+        "classification": "VUS",
+        "violations": [],
+        "active_criteria": [],
+        "counts": {
+          "very_strong": 0,
+          "strong": 0,
+          "moderate": 0,
+          "supporting": 0,
+          "stand_alone": 0
+        }
+      },
+      "delta": 0.5625,
+      "r2": 0.8587786259541984,
+      "r3": 0.0
+    }
+  ]
+}

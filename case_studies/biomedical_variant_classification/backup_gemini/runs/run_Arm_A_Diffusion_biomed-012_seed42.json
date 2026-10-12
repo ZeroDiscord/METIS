@@ -1,0 +1,317 @@
+{
+  "domain": "biomedical_variant_classification",
+  "instance_id": "biomed-012",
+  "difficulty": "conflicting",
+  "arm": "Arm_A_Diffusion",
+  "seed": 42,
+  "R1": 0.33,
+  "R2": 0.3978,
+  "R3": 0.75,
+  "R4": 0.0,
+  "R5": 5,
+  "R6": 1.0,
+  "R7": 1.25,
+  "Q1": 0.0,
+  "Q2": 0,
+  "Q3": 1.0,
+  "Q4": 1.55,
+  "C1": 5,
+  "C2": 2152,
+  "C3": 8,
+  "C4": 0.0011,
+  "C5": 0,
+  "log_records": [
+    {
+      "t": 1,
+      "perturbation": {
+        "t": 1,
+        "type": "constraint_added",
+        "perturbation_id": "P1",
+        "content": "VCEP Specification: SCN5A patch clamp functional assay PS3 requires mammalian expression at 37C physiological bath; room temperature assays cannot be scored.",
+        "affected_criteria": [
+          "PS3"
+        ]
+      },
+      "state_before": {
+        "classification": "VUS",
+        "active_criteria": [
+          "PM2"
+        ],
+        "assumptions": [
+          "Initial assumption"
+        ],
+        "constraints": [],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.2,
+          "Likely pathogenic": 0.2,
+          "VUS": 0.2,
+          "Likely benign": 0.2,
+          "Benign": 0.2
+        },
+        "plan": [
+          "init"
+        ]
+      },
+      "state_after": {
+        "classification": "VUS",
+        "active_criteria": [],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "verifier_report": {
+        "valid": true,
+        "classification": "VUS",
+        "violations": [],
+        "active_criteria": [],
+        "counts": {
+          "very_strong": 0,
+          "strong": 0,
+          "moderate": 0,
+          "supporting": 0,
+          "stand_alone": 0
+        }
+      },
+      "delta": 0.7200000000000001,
+      "r2": 0.9171974522292996,
+      "r3": 0.0
+    },
+    {
+      "t": 2,
+      "perturbation": {
+        "t": 2,
+        "type": "dependency_revealed",
+        "perturbation_id": "P2",
+        "content": "Two case reports of sudden infant death syndrome (SIDS) are linked to a single multigenerational family with confirmed Long QT Type 3, not Brugada syndrome.",
+        "affected_criteria": [
+          "PS4",
+          "PP1"
+        ]
+      },
+      "state_before": {
+        "classification": "VUS",
+        "active_criteria": [],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "state_after": {
+        "classification": "VUS",
+        "active_criteria": [
+          "PS1"
+        ],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "verifier_report": {
+        "valid": true,
+        "classification": "VUS",
+        "violations": [],
+        "active_criteria": [
+          "PS1"
+        ],
+        "counts": {
+          "very_strong": 0,
+          "strong": 0,
+          "moderate": 0,
+          "supporting": 0,
+          "stand_alone": 0
+        }
+      },
+      "delta": 0.3,
+      "r2": 0.3370786516853933,
+      "r3": 1.0
+    },
+    {
+      "t": 3,
+      "perturbation": {
+        "t": 3,
+        "type": "assumption_invalidated",
+        "perturbation_id": "P3",
+        "content": "CONTRADICTION: Re-testing at 37C reveals peak INa current is completely normal (contradicting loss-of-function Brugada mechanism), but persistent late sodium current (INa,L) is increased 4-fold, establishing pure gain-of-function Long QT3 mechanism (PS3_Strong).",
+        "affected_criteria": [
+          "PS3"
+        ]
+      },
+      "state_before": {
+        "classification": "VUS",
+        "active_criteria": [
+          "PS1"
+        ],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "state_after": {
+        "classification": "VUS",
+        "active_criteria": [],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "verifier_report": {
+        "valid": true,
+        "classification": "VUS",
+        "violations": [],
+        "active_criteria": [],
+        "counts": {
+          "very_strong": 0,
+          "strong": 0,
+          "moderate": 0,
+          "supporting": 0,
+          "stand_alone": 0
+        }
+      },
+      "delta": 0.3,
+      "r2": 0.3370786516853933,
+      "r3": 1.0
+    },
+    {
+      "t": 4,
+      "perturbation": {
+        "t": 4,
+        "type": "setting_changed",
+        "perturbation_id": "P4",
+        "content": "Variant is located in the DIII-DIV linker activation gate (PM1 hotspot) and completely absent in gnomAD v4 controls (PM2). Multi-family segregation reaches LOD = 3.8 (PS4/PP1). Classification reaches Pathogenic.",
+        "affected_criteria": [
+          "PM1",
+          "PM2",
+          "PS4",
+          "PP1"
+        ]
+      },
+      "state_before": {
+        "classification": "VUS",
+        "active_criteria": [],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "state_after": {
+        "classification": "VUS",
+        "active_criteria": [],
+        "assumptions": [
+          "Diffusion extracted state"
+        ],
+        "constraints": [],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ]
+      },
+      "verifier_report": {
+        "valid": true,
+        "classification": "VUS",
+        "violations": [],
+        "active_criteria": [],
+        "counts": {
+          "very_strong": 0,
+          "strong": 0,
+          "moderate": 0,
+          "supporting": 0,
+          "stand_alone": 0
+        }
+      },
+      "delta": 0.0,
+      "r2": 0.0,
+      "r3": 1.0
+    }
+  ]
+}

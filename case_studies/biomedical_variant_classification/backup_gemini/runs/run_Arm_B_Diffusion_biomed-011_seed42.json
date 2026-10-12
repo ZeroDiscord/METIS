@@ -1,0 +1,334 @@
+{
+  "domain": "biomedical_variant_classification",
+  "instance_id": "biomed-011",
+  "difficulty": "easy",
+  "arm": "Arm_B_Diffusion",
+  "seed": 42,
+  "R1": 0.1925,
+  "R2": 0.1985,
+  "R3": 1.0,
+  "R4": 0.0,
+  "R5": 8,
+  "R6": 0.75,
+  "R7": 2.0,
+  "Q1": 1.0,
+  "Q2": 1,
+  "Q3": 0.0,
+  "Q4": 0.05,
+  "C1": 8,
+  "C2": 2921,
+  "C3": 8,
+  "C4": 0.0015,
+  "C5": 4,
+  "log_records": [
+    {
+      "t": 1,
+      "perturbation": {
+        "t": 1,
+        "type": "constraint_added",
+        "perturbation_id": "P1",
+        "content": "InSiGHT Guideline: Functional MMR in-vitro assay must demonstrate <10% repair activity and protein instability to score PS3.",
+        "affected_criteria": [
+          "PS3"
+        ]
+      },
+      "sigma_before": {
+        "classification": "VUS",
+        "active_criteria": [
+          "PVS1"
+        ],
+        "assumptions": [
+          "Initial provisional assumption"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.2,
+          "Likely pathogenic": 0.2,
+          "VUS": 0.2,
+          "Likely benign": 0.2,
+          "Benign": 0.2
+        },
+        "plan": [
+          "init"
+        ]
+      },
+      "sigma_after": {
+        "classification": "VUS",
+        "active_criteria": [],
+        "assumptions": [
+          "Initial provisional assumption"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ],
+        "withdrawn_assumptions": []
+      },
+      "verifier_report": {
+        "valid": true,
+        "classification": "VUS",
+        "violations": [],
+        "active_criteria": [],
+        "counts": {
+          "very_strong": 0,
+          "strong": 0,
+          "moderate": 0,
+          "supporting": 0,
+          "stand_alone": 0
+        }
+      },
+      "delta": 0.52,
+      "r2": 0.5416666666666667,
+      "r3": 1.0
+    },
+    {
+      "t": 2,
+      "perturbation": {
+        "t": 2,
+        "type": "dependency_revealed",
+        "perturbation_id": "P2",
+        "content": "Published functional assays (yeast MMR and mammalian 2-hybrid) both validated complete disruption of PMS2 heterodimerization and repair (<5% activity). PS3 is validated.",
+        "affected_criteria": [
+          "PS3"
+        ]
+      },
+      "sigma_before": {
+        "classification": "VUS",
+        "active_criteria": [],
+        "assumptions": [
+          "Initial provisional assumption"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ],
+        "withdrawn_assumptions": []
+      },
+      "sigma_after": {
+        "classification": "VUS",
+        "active_criteria": [],
+        "assumptions": [
+          "Initial provisional assumption"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ],
+        "withdrawn_assumptions": []
+      },
+      "verifier_report": {
+        "valid": true,
+        "classification": "VUS",
+        "violations": [],
+        "active_criteria": [],
+        "counts": {
+          "very_strong": 0,
+          "strong": 0,
+          "moderate": 0,
+          "supporting": 0,
+          "stand_alone": 0
+        }
+      },
+      "delta": 0.0,
+      "r2": 0.0,
+      "r3": 1.0
+    },
+    {
+      "t": 3,
+      "perturbation": {
+        "t": 3,
+        "type": "assumption_invalidated",
+        "perturbation_id": "P3",
+        "content": "gnomAD update: Variant observed in 1 heterozygous elderly individual without cancer (AF = 0.000004), disallowing PM2_StandAlone but retaining PM2 as rare (<0.0001).",
+        "affected_criteria": [
+          "PM2"
+        ]
+      },
+      "sigma_before": {
+        "classification": "VUS",
+        "active_criteria": [],
+        "assumptions": [
+          "Initial provisional assumption"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ],
+        "withdrawn_assumptions": []
+      },
+      "sigma_after": {
+        "classification": "VUS",
+        "active_criteria": [],
+        "assumptions": [
+          "Initial provisional assumption"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ],
+        "withdrawn_assumptions": []
+      },
+      "verifier_report": {
+        "valid": true,
+        "classification": "VUS",
+        "violations": [],
+        "active_criteria": [],
+        "counts": {
+          "very_strong": 0,
+          "strong": 0,
+          "moderate": 0,
+          "supporting": 0,
+          "stand_alone": 0
+        }
+      },
+      "delta": 0.0,
+      "r2": 0.0,
+      "r3": 1.0
+    },
+    {
+      "t": 4,
+      "perturbation": {
+        "t": 4,
+        "type": "setting_changed",
+        "perturbation_id": "P4",
+        "content": "Multiple independent Lynch syndrome pedigrees confirm strong co-segregation with colorectal tumors showing microsatellite instability and loss of MLH1/PMS2 expression (PP1_Strong + PS4). Combined with functional defect (PS3) and ATP domain localization (PM1), variant reaches Pathogenic.",
+        "affected_criteria": [
+          "PP1",
+          "PS4",
+          "PM1"
+        ]
+      },
+      "sigma_before": {
+        "classification": "VUS",
+        "active_criteria": [],
+        "assumptions": [
+          "Initial provisional assumption"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "VUS"
+        ],
+        "belief": {
+          "Pathogenic": 0.05,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.8,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ],
+        "withdrawn_assumptions": []
+      },
+      "sigma_after": {
+        "classification": "Pathogenic",
+        "active_criteria": [],
+        "assumptions": [
+          "Initial provisional assumption"
+        ],
+        "constraints": [
+          "PVS1"
+        ],
+        "hypotheses": [
+          "Pathogenic"
+        ],
+        "belief": {
+          "Pathogenic": 0.8,
+          "Likely pathogenic": 0.05,
+          "VUS": 0.05,
+          "Likely benign": 0.05,
+          "Benign": 0.05
+        },
+        "plan": [
+          "completed"
+        ],
+        "withdrawn_assumptions": []
+      },
+      "verifier_report": {
+        "valid": false,
+        "classification": "VUS",
+        "violations": [
+          "CLASS_RULE_MISMATCH: Agent claimed 'Pathogenic' but criteria combine to 'VUS'."
+        ],
+        "active_criteria": [],
+        "counts": {
+          "very_strong": 0,
+          "strong": 0,
+          "moderate": 0,
+          "supporting": 0,
+          "stand_alone": 0
+        }
+      },
+      "delta": 0.25,
+      "r2": 0.25252525252525254,
+      "r3": 1.0
+    }
+  ]
+}
