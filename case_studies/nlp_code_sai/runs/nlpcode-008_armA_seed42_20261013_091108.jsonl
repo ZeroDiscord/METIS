@@ -1,0 +1,77 @@
+{
+  "instance_id": "nlpcode-008",
+  "arm": "A",
+  "seed": 42,
+  "metrics": {
+    "domain": "nlp_code",
+    "instance_id": "nlpcode-008",
+    "difficulty": "hard",
+    "arm": "A",
+    "seed": 42,
+    "R1": 0.756,
+    "R2": 0.137,
+    "R3": 0.0,
+    "R4": 0.9,
+    "R5": 10,
+    "R6": 0.0,
+    "R7": 20,
+    "Q1": 0,
+    "Q2": 6,
+    "Q3": 0.15,
+    "Q4": 0.25,
+    "C1": 21,
+    "C2": 36650,
+    "C3": 20,
+    "C4": 263.8,
+    "C5": 0
+  },
+  "tools_called": [
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests",
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests",
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests",
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests"
+  ],
+  "test_run_count": 10,
+  "accepted": false,
+  "final_answer": "Solution status for nlpcode-008: passed=False",
+  "submission": {
+    "submission_type": "workspace_python_code",
+    "target_function": "resolve_conflicts",
+    "code_snippet": "def resolve_conflicts(*args, **kwargs):\n    # Failed tests under context bloat\n    pass\n"
+  },
+  "verifier_result": {
+    "passed": false,
+    "failed_count": 6,
+    "passed_count": 2,
+    "total": 8,
+    "violations": [
+      "Failed 6 hidden assertions"
+    ]
+  },
+  "observations": [
+    {
+      "tool": "read_spec",
+      "result": "Loaded spec for nlpcode-008"
+    },
+    {
+      "tool": "run_tests",
+      "result": "Tests executed: passed=False"
+    }
+  ]
+}

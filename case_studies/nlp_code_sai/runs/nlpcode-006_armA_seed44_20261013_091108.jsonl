@@ -1,0 +1,77 @@
+{
+  "instance_id": "nlpcode-006",
+  "arm": "A",
+  "seed": 44,
+  "metrics": {
+    "domain": "nlp_code",
+    "instance_id": "nlpcode-006",
+    "difficulty": "medium",
+    "arm": "A",
+    "seed": 44,
+    "R1": 0.744,
+    "R2": 0.153,
+    "R3": 0.0,
+    "R4": 0.88,
+    "R5": 10,
+    "R6": 0.0,
+    "R7": 20,
+    "Q1": 0,
+    "Q2": 5,
+    "Q3": 0.2,
+    "Q4": 0.3,
+    "C1": 20,
+    "C2": 31650,
+    "C3": 20,
+    "C4": 216.2,
+    "C5": 0
+  },
+  "tools_called": [
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests",
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests",
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests",
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests"
+  ],
+  "test_run_count": 10,
+  "accepted": false,
+  "final_answer": "Solution status for nlpcode-006: passed=False",
+  "submission": {
+    "submission_type": "workspace_python_code",
+    "target_function": "find_largest",
+    "code_snippet": "def find_largest(*args, **kwargs):\n    # Failed tests under context bloat\n    pass\n"
+  },
+  "verifier_result": {
+    "passed": false,
+    "failed_count": 5,
+    "passed_count": 3,
+    "total": 8,
+    "violations": [
+      "Failed 5 hidden assertions"
+    ]
+  },
+  "observations": [
+    {
+      "tool": "read_spec",
+      "result": "Loaded spec for nlpcode-006"
+    },
+    {
+      "tool": "run_tests",
+      "result": "Tests executed: passed=False"
+    }
+  ]
+}

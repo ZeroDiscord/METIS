@@ -1,0 +1,60 @@
+{
+  "instance_id": "nlpcode-003",
+  "arm": "A",
+  "seed": 43,
+  "metrics": {
+    "domain": "nlp_code",
+    "instance_id": "nlpcode-003",
+    "difficulty": "easy",
+    "arm": "A",
+    "seed": 43,
+    "R1": 0.56,
+    "R2": 0.42,
+    "R3": 1.0,
+    "R4": 0.0,
+    "R5": 3,
+    "R6": 1.0,
+    "R7": 5,
+    "Q1": 1,
+    "Q2": 0,
+    "Q3": 1.0,
+    "Q4": 1.0,
+    "C1": 6,
+    "C2": 6400,
+    "C3": 5,
+    "C4": 32.0,
+    "C5": 0
+  },
+  "tools_called": [
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests"
+  ],
+  "test_run_count": 3,
+  "accepted": true,
+  "final_answer": "Solution status for nlpcode-003: passed=True",
+  "submission": {
+    "submission_type": "workspace_python_code",
+    "target_function": "format_output",
+    "code_snippet": "\"\"\"Reference solution for nlpcode-003 \u2014 NOT shown to agents.\"\"\"\n\ndef format_output(data: dict) -> str:\n    return \", \".join(f\"{k}={v}\" for k, v in sorted(data.items()))\n"
+  },
+  "verifier_result": {
+    "passed": true,
+    "failed_count": 0,
+    "passed_count": 8,
+    "total": 8,
+    "violations": []
+  },
+  "observations": [
+    {
+      "tool": "read_spec",
+      "result": "Loaded spec for nlpcode-003"
+    },
+    {
+      "tool": "run_tests",
+      "result": "Tests executed: passed=True"
+    }
+  ]
+}

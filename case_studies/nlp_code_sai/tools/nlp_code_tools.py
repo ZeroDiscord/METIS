@@ -19,10 +19,7 @@ from langchain_core.tools import tool
 
 
 # ── Paths ──────────────────────────────────────────────────────────────────
-_BASE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "case_studies", "nlp_code_sai",
-)
+_BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _INSTANCES_DIR = os.path.join(_BASE, "instances")
 _WORKSPACE_DIR = os.path.join(_BASE, "agent_workspace")
 _VERIFIER_DIR  = os.path.join(_BASE, "verifier")

@@ -1,0 +1,77 @@
+{
+  "instance_id": "nlpcode-005",
+  "arm": "A",
+  "seed": 43,
+  "metrics": {
+    "domain": "nlp_code",
+    "instance_id": "nlpcode-005",
+    "difficulty": "medium",
+    "arm": "A",
+    "seed": 43,
+    "R1": 0.7,
+    "R2": 0.2,
+    "R3": 0.0,
+    "R4": 0.82,
+    "R5": 10,
+    "R6": 0.0,
+    "R7": 20,
+    "Q1": 0,
+    "Q2": 3,
+    "Q3": 0.3,
+    "Q4": 0.4,
+    "C1": 20,
+    "C2": 32800,
+    "C3": 20,
+    "C4": 230.0,
+    "C5": 0
+  },
+  "tools_called": [
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests",
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests",
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests",
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests"
+  ],
+  "test_run_count": 10,
+  "accepted": false,
+  "final_answer": "Solution status for nlpcode-005: passed=False",
+  "submission": {
+    "submission_type": "workspace_python_code",
+    "target_function": "merge_streams",
+    "code_snippet": "def merge_streams(*args, **kwargs):\n    # Failed tests under context bloat\n    pass\n"
+  },
+  "verifier_result": {
+    "passed": false,
+    "failed_count": 3,
+    "passed_count": 5,
+    "total": 8,
+    "violations": [
+      "Failed 3 hidden assertions"
+    ]
+  },
+  "observations": [
+    {
+      "tool": "read_spec",
+      "result": "Loaded spec for nlpcode-005"
+    },
+    {
+      "tool": "run_tests",
+      "result": "Tests executed: passed=False"
+    }
+  ]
+}

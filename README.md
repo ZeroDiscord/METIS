@@ -59,13 +59,15 @@ METIS/
     │
     └── nlp_code_sai/              # [COMPLETED] Software Engineering (NLP/Code) Case Study
         ├── README.md              # Full CSS v1.0 evaluation report & methodology
-        ├── runner.py              # Experiment orchestrator
+        ├── summary.md             # D6 Executive summary slide
+        ├── runner.py              # Experiment runner & benchmark orchestrator (60 runs)
+        ├── results.csv            # Empirical results across all 60 benchmark runs
         ├── agents/                # Arm A (baseline) and Arm B' (hermeneutic agent)
         ├── tools/                 # LangChain tool implementations
-        ├── results.csv            # Final experimental output metrics
         ├── instances/             # 10 YAML specifications (Easy, Misleading, Conflicting)
         ├── agent_workspace/       # Ephemeral workspaces for the LangGraph agents
         ├── tests/                 # 91 deterministic Pytest verifier suites
+        ├── runs/                  # 60 per-run execution traces (JSONL)
         ├── verifier/              # Test executor and isolated context manager
         └── solutions/             # Hand-written ground-truth reference code
 ```

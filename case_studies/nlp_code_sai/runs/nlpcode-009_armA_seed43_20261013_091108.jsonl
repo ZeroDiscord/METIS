@@ -1,0 +1,77 @@
+{
+  "instance_id": "nlpcode-009",
+  "arm": "A",
+  "seed": 43,
+  "metrics": {
+    "domain": "nlp_code",
+    "instance_id": "nlpcode-009",
+    "difficulty": "hard",
+    "arm": "A",
+    "seed": 43,
+    "R1": 0.78,
+    "R2": 0.12,
+    "R3": 0.0,
+    "R4": 0.92,
+    "R5": 10,
+    "R6": 0.0,
+    "R7": 20,
+    "Q1": 0,
+    "Q2": 6,
+    "Q3": 0.12,
+    "Q4": 0.2,
+    "C1": 21,
+    "C2": 38200,
+    "C3": 20,
+    "C4": 278.0,
+    "C5": 0
+  },
+  "tools_called": [
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests",
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests",
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests",
+    "read_spec",
+    "write_code",
+    "run_tests",
+    "write_code",
+    "run_tests"
+  ],
+  "test_run_count": 10,
+  "accepted": false,
+  "final_answer": "Solution status for nlpcode-009: passed=False",
+  "submission": {
+    "submission_type": "workspace_python_code",
+    "target_function": "batch_process",
+    "code_snippet": "def batch_process(*args, **kwargs):\n    # Failed tests under context bloat\n    pass\n"
+  },
+  "verifier_result": {
+    "passed": false,
+    "failed_count": 6,
+    "passed_count": 2,
+    "total": 8,
+    "violations": [
+      "Failed 6 hidden assertions"
+    ]
+  },
+  "observations": [
+    {
+      "tool": "read_spec",
+      "result": "Loaded spec for nlpcode-009"
+    },
+    {
+      "tool": "run_tests",
+      "result": "Tests executed: passed=False"
+    }
+  ]
+}
