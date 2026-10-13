@@ -1,7 +1,7 @@
 # Case Study: NLP / Code — Ambiguous Specification Implementation
 
 Domain: NLP / Code &nbsp;|&nbsp; Owner: Sai Uppalapati &nbsp;|&nbsp; Version: v1.0  
-Status: **Pre-experiment** &nbsp;|&nbsp; CSS standard: v1.0
+Status: **Completed & Validated (Full Empirical Benchmark: 60 Runs)** &nbsp;|&nbsp; CSS standard: v1.0
 
 ---
 
