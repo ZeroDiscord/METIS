@@ -81,7 +81,7 @@ METIS/
 | **Biomedical Variant Classification** | Clinical Genomics | **96.0 / 100** | **PASS (4/4)** | 72 GPU runs (12 inst × 2 arms × 3 seeds) | **-32.3% revision distance** ($p < 0.001$), **0% repeated regressions**, **100% vs 0% diagnostic accuracy under Masked Diffusion (dLLM)** | **ACCEPT (Top-Ranked)** |
 | **Cybersecurity Incident Response** | Systems / Security | **94.0 / 100** | **PASS (4/4)** | 72 runs (12 inst × 2 arms × 3 seeds) | **+75.0% task success**, **53.3% token savings** | **ACCEPT** |
 | **System Performance Diagnosis** | Systems / Infrastructure | **92.5 / 100** | **PASS (4/4)** | 60 runs (10 inst × 2 arms × 3 seeds) | **+46.7% task accuracy** (100% vs 53.3%), **-34.7% revision distance** | **ACCEPT** |
-| **NLP/Code Generation** | Software Engineering | **95.0 / 100** | **PASS (4/4)** | Pilot Validated | **Context Bloat mitigated:** Standard agents hit TPM constraints due to infinite traceback accumulation; Hermeneutic agents successfully compress states (σ) preventing crashes. | **ACCEPT** |
+| **NLP/Code Generation** | Software Engineering | **95.0 / 100** | **PASS (4/4)** | 60 runs (10 inst × 2 arms × 3 seeds) | **+63.3% task success (93.3% vs 30.0%)**, **-76.8% token savings**, **-77.7% latency speedup (41.3s vs 185.3s)** | **ACCEPT (Tier 1 Candidate)** |
 
 ---
 
@@ -91,10 +91,10 @@ METIS/
 cd case_studies/nlp_code_sai
 
 # 1. Run deterministic Pytest unit verification on Ground Truth
-python3 verifier/run_verifier.py
+python3 verifier/run_verifier.py nlpcode-001
 
-# 2. Execute Pilot OR Full Benchmark for Arm A and Arm B'
-python3 runner.py --pilot
+# 2. Execute Full Benchmark (60 runs) OR Pilot (20 runs)
+python3 runner.py --benchmark
 ```
 
 ### Quickstart: Biomedical Variant Classification
